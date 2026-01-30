@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>403 • Odmowa dostępu</title>
+
+    <style>
+        :root{
+          --bg1:#0b1020;
+          --bg2:#0a0f1a;
+          --card: rgba(255,255,255,0.08);
+          --border: rgba(255,255,255,0.12);
+          --text: rgba(255,255,255,0.92);
+          --muted: rgba(255,255,255,0.68);
+          --shadow: 0 18px 52px rgba(0,0,0,0.45);
+          --radius: 18px;
+          --radiusSm: 14px;
+          --warn: rgba(255, 193, 92, 0.95);
+          --ok: rgba(0, 212, 255, 0.9);
+          --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        *{ box-sizing:border-box; }
+        html,body{ height:100%; margin:0; }
+        body{
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+          color: var(--text);
+          background:
+            radial-gradient(1100px 760px at 18% 10%, #243bff1f, transparent 55%),
+            radial-gradient(980px 720px at 84% 70%, #00d4ff1a, transparent 60%),
+            linear-gradient(180deg, var(--bg1), var(--bg2));
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding: 28px;
+        }
+
+        .wrap{
+          width: min(880px, 100%);
+          display:grid;
+          gap: 16px;
+        }
+
+        .card{
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(10px);
+          overflow:hidden;
+        }
+
+        .head{
+          padding: 18px;
+          display:flex;
+          align-items:flex-start;
+          justify-content:space-between;
+          gap: 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.10);
+        }
+
+        .title{
+          display:flex;
+          flex-direction:column;
+          gap: 6px;
+          min-width: 0;
+        }
+
+        .title h1{
+          margin:0;
+          font-size: 1.45rem;
+          letter-spacing: .2px;
+          line-height: 1.2;
+        }
+
+        .subtitle{
+          color: var(--muted);
+          line-height: 1.45;
+          font-size: .95rem;
+        }
+
+        .badge-row{
+          display:flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content:flex-end;
+          align-items:center;
+        }
+
+        .badge{
+          display:inline-flex;
+          align-items:center;
+          gap: 8px;
+          padding: 10px 14px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
+          color: var(--text);
+          user-select:none;
+          white-space: nowrap;
+        }
+
+        .badge--warn{
+          border-color: rgba(255, 193, 92, 0.35);
+          box-shadow: 0 0 0 4px rgba(255, 193, 92, 0.12) inset;
+        }
+
+        .badge--ok{
+          border-color: rgba(0, 212, 255, 0.35);
+          box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.12) inset;
+        }
+
+        .mono{ font-family: var(--mono); font-weight:700; letter-spacing:.2px; }
+
+        .body{
+          padding: 18px;
+          display:grid;
+          gap: 12px;
+        }
+
+        .panel{
+          padding: 14px 14px;
+          border-radius: var(--radiusSm);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.10);
+          color: rgba(255,255,255,0.82);
+          line-height: 1.5;
+        }
+
+        .actions{
+          padding: 14px 18px 18px;
+          display:flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .btn{
+          display:inline-flex;
+          align-items:center;
+          gap: 8px;
+          padding: 10px 14px;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.14);
+          background: rgba(255,255,255,0.07);
+          color: var(--text);
+          text-decoration:none;
+          cursor:pointer;
+          transition: filter 120ms ease, transform 120ms ease;
+        }
+        .btn:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+        .btn:active{ transform: translateY(0); }
+
+        .btn--primary{
+          border-color: rgba(0, 212, 255, 0.35);
+          box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.12) inset;
+        }
+
+        .btn--warn{
+          border-color: rgba(255, 193, 92, 0.35);
+          box-shadow: 0 0 0 4px rgba(255, 193, 92, 0.12) inset;
+        }
+
+        @media (max-width: 720px){
+          .actions{ justify-content: stretch; }
+          .btn{ justify-content:center; flex: 1; }
+        }
+    </style>
+</head>
+
+<body>
+<main class="wrap">
+
+    <section class="card">
+        <header class="head">
+            <div class="title">
+                <h1>403 — Odmowa dostępu</h1>
+                <div class="subtitle">
+                    Nie masz odpowiednich uprawnień do wejścia na tę stronę.
+                </div>
+            </div>
+
+            <div class="badge-row">
+          <span class="badge badge--warn">
+            <strong>Brak</strong> <span>uprawnień</span>
+          </span>
+                <span class="badge badge--ok" th:if="${path}">
+            <strong>Path</strong> <span class="mono" th:text="${path}">/</span>
+          </span>
+            </div>
+        </header>
+
+        <div class="body">
+            <div class="panel">
+                Jeśli uważasz, że powinieneś mieć dostęp:
+                <ul style="margin:10px 0 0 18px; padding:0;">
+                    <li>upewnij się, że jesteś zalogowany na właściwe konto</li>
+                    <li>sprawdź rolę / uprawnienia w systemie</li>
+                    <li>skontaktuj się z administratorem</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a class="btn btn--primary" th:href="@{/}">
+                ⬅ Wróć do startu
+            </a>
+            <a class="btn btn--warn" th:href="@{/Customers/GetCustomers}">
+                📄 Kontrahenci
+            </a>
+            <!-- jeśli masz logout endpoint -->
+            <a class="btn" th:href="@{/logout}">
+                🚪 Wyloguj
+            </a>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

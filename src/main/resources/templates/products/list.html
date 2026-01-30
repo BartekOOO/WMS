@@ -1,0 +1,81 @@
+<div th:fragment="fragment" xmlns:th="http://www.w3.org/1999/xhtml">
+
+    <section class="card">
+        <header class="card-h">
+            <h2>Produkty</h2>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Products/AddForm}">Dodaj</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+            <div class="table-wrap">
+
+                <!-- Sukces -->
+                <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                    <div class="alert-glass__icon">✓</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Sukces</div>
+                        <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                    </div>
+                </div>
+
+                <!-- Błąd -->
+                <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Błąd</div>
+                        <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd.</div>
+                    </div>
+                </div>
+
+                <table class="table table-click">
+                    <thead>
+                    <tr>
+                        <th style="width:76px">Foto</th>
+                        <th>SKU</th>
+                        <th>Nazwa</th>
+                        <th>Jm</th>
+                        <th>EAN</th>
+                        <th>Marka</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="p : ${products}" class="row-link">
+                        <td>
+                            <div class="thumb">
+                                <img th:if="${p.photoName != null}"
+                                     th:src="@{/Products/Photo(id=${p.id})}"
+                                     alt="Foto produktu"/>
+                                <span th:if="${p.photoName == null}" class="thumb__ph">📦</span>
+                            </div>
+                        </td>
+
+                        <td class="mono" th:text="${p.sku}">SKU-001</td>
+
+                        <td class="cell-main">
+                            <a class="row-overlay" th:href="@{/Products/EditForm(id=${p.id})}" aria-label="Otwórz produkt"></a>
+                            <div class="main-title" th:text="${p.name}">Nazwa</div>
+                            <div class="main-sub" th:text="${p.brand != null && !#strings.isEmpty(p.brand) ? p.feature : '—'}">—</div>
+                        </td>
+
+                        <td class="mono" th:text="${p.unit}">szt</td>
+                        <td class="mono" th:text="${p.ean != null ? p.ean : '—'}">—</td>
+                        <td th:text="${p.feature != null ? p.feature : '—'}">—</td>
+                    </tr>
+
+                    <tr th:if="${products == null || #lists.isEmpty(products)}">
+                        <td colspan="6" style="padding:16px;color:rgba(255,255,255,0.65)">
+                            Brak produktów.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </section>
+
+</div>

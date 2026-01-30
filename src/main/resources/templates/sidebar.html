@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="https://www.thymeleaf.org">
+<body>
+<aside class="sidebar" id="sidebar" aria-label="Nawigacja" th:fragment="sidebar">
+
+    <div class="sidebar-top">
+        <a class="brand brand-link" th:href="@{/App}" aria-label="WMS — strona główna">
+            <div class="brand-badge">WMS</div>
+            <div class="brand-text">
+                <div class="brand-title">Warehouse</div>
+                <div class="brand-subtitle">Management System</div>
+            </div>
+        </a>
+    </div>
+
+
+    <nav class="nav">
+        <a class="nav-item" th:href="@{/Customers/GetCustomers(isArchival=false)}">
+            <span class="nav-ic">👥</span><span class="nav-tx">Kontrahenci</span>
+        </a>
+
+        <a class="nav-item" th:href="@{/Products/GetProducts(isArchival=false)}">
+            <span class="nav-ic">📦</span><span class="nav-tx">Asortyment</span>
+        </a>
+
+        <a class="nav-item" th:href="@{/Warehouses/GetWarehouses(isArchival=false)}">
+            <span class="nav-ic">🏬</span><span class="nav-tx">Magazyny</span>
+        </a>
+
+        <a class="nav-item" th:href="@{/Documents/DocumentsForm}">
+            <span class="nav-ic">🧾</span><span class="nav-tx">Dokumenty</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="side-hint">
+            <div class="side-dot"></div>
+            <div class="side-text">Szybki dostęp</div>
+        </div>
+    </div>
+
+</aside>
+</body>
+</html>

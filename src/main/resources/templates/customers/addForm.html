@@ -1,0 +1,134 @@
+<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
+
+    <section class="card">
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Nowy kontrahent</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: dodawanie</div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Customers/GetCustomers}">Wróć</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <!-- Sukces -->
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                </div>
+            </div>
+
+            <!-- Błąd -->
+            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Nie udało się wykonać operacji</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                </div>
+            </div>
+
+            <form th:object="${command}"
+                  th:action="@{/Customers/RegisterCustomer}"
+                  method="post"
+                  style="display:grid;gap:14px">
+
+                <!-- CUSTOMER -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div>
+                        <label class="form-label">Akronim</label>
+                        <input class="form-input" th:field="*{customer.acronym}" placeholder="np. ABC"/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Typ</label>
+                        <select class="form-input" th:field="*{customer.customerType}">
+                            <option value="">—</option>
+                            <option th:each="t : ${T(edu.uws.ii.springboot.enums.CustomerTypeEnum).values()}"
+                                    th:value="${t}"
+                                    th:text="${t.description}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div style="grid-column:1 / -1">
+                        <label class="form-label">Nazwa</label>
+                        <input class="form-input" th:field="*{customer.fullName}" placeholder="Pełna nazwa firmy"/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">NIP</label>
+                        <input class="form-input mono" th:field="*{customer.nip}" placeholder="123..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input class="form-input" th:field="*{customer.email}" placeholder="mail@..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">URL</label>
+                        <input class="form-input" th:field="*{customer.url}" placeholder="https://..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Data założenia</label>
+                        <input class="form-input" type="date" th:field="*{customer.foundedOn}"/>
+                    </div>
+                </div>
+
+                <div style="height:18px"></div>
+
+                <!-- ADDRESS (główny) -->
+                <section class="card"
+                         style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
+                    <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                        <h2 style="font-size:1.05rem">Adres główny</h2>
+                    </header>
+
+                    <div class="card-b">
+                        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+                            <div>
+                                <label class="form-label">Ulica</label>
+                                <input class="form-input" th:field="*{address.street}" placeholder="Ulica, nr..."/>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Kod</label>
+                                <input class="form-input" th:field="*{address.zipCode}" placeholder="00-000"/>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Miasto</label>
+                                <input class="form-input" th:field="*{address.city}" placeholder="Miasto"/>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Województwo</label>
+                                <input class="form-input" th:field="*{address.state}" placeholder="np. Mazowieckie"/>
+                            </div>
+
+                            <div style="grid-column:1 / -1">
+                                <label class="form-label">Kraj</label>
+                                <input class="form-input" th:field="*{address.country}" placeholder="PL"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button class="chip chip--save" type="submit">
+                        💾 Zapisz zmiany
+                    </button>
+                </div>
+
+
+            </form>
+
+        </div>
+    </section>
+</div>

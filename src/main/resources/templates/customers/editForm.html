@@ -1,0 +1,194 @@
+<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
+
+    <section class="card">
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Kontrahent</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: edycja</div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Customers/GetCustomers}">Wróć</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <!-- Sukces -->
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                </div>
+            </div>
+
+            <!-- Błąd -->
+            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Nie udało się zapisać kontrahenta</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                </div>
+            </div>
+
+            <!-- FORM (EditCustomerCommand) -->
+            <form th:object="${command}"
+                  th:action="@{/Customers/EditCustomer}"
+                  method="post"
+                  style="display:grid;gap:14px">
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+                    <div>
+                        <label class="form-label">Akronim</label>
+                        <input class="form-input" th:field="*{acronym}" placeholder="np. ABC"/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Typ</label>
+                        <select class="form-input" th:field="*{customerType}">
+                            <option value="">—</option>
+                            <option th:each="t : ${T(edu.uws.ii.springboot.enums.CustomerTypeEnum).values()}"
+                                    th:value="${t}"
+                                    th:text="${t.description}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div style="grid-column:1 / -1">
+                        <label class="form-label">Nazwa</label>
+                        <input class="form-input" th:field="*{fullName}" placeholder="Pełna nazwa firmy"/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">NIP</label>
+                        <input class="form-input mono" th:field="*{nip}" placeholder="123..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input class="form-input" th:field="*{email}" placeholder="mail@..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">URL</label>
+                        <input class="form-input" th:field="*{url}" placeholder="https://..."/>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Data założenia</label>
+                        <input class="form-input" type="date" th:field="*{foundedOn}"/>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="chip chip--danger"
+                       th:if="${customer != null and customer.id != null}"
+                       th:href="@{/Customers/DeleteCustomer(id=${customer.id})}">
+                        🗑 Usuń
+                    </a>
+
+                    <button class="chip chip--save" type="submit">
+                        💾 Zapisz zmiany
+                    </button>
+                </div>
+
+
+            </form>
+
+            <div style="height:18px"></div>
+
+            <!-- MAIN ADDRESS (preview) -->
+            <section class="card"
+                     style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
+                <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                    <h2 style="font-size:1.05rem">Adres główny</h2>
+                </header>
+                <div class="card-b">
+                    <div style="color:rgba(255,255,255,0.90);font-weight:800"
+                         th:text="${customer != null ? customer.mainAddressLine : '—'}">—</div>
+                    <div style="margin-top:8px;color:rgba(255,255,255,0.60);font-size:.9rem">
+                        Edycja adresu w sekcji „Adresy”.
+                    </div>
+                </div>
+            </section>
+
+            <div style="height:18px"></div>
+
+            <!-- ADDRESSES LIST -->
+            <section>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+                    <div style="font-weight:900">Adresy</div>
+
+                    <a class="chip"
+                       th:if="${customer != null}"
+                       th:href="@{/Addresses/AddForm(customerId=${customer.id})}">
+                        Dodaj adres
+                    </a>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="table table-click">
+                        <thead>
+                        <tr>
+                            <th>Adres</th>
+                            <th>Miasto</th>
+                            <th>Kod</th>
+                            <th>Kraj</th>
+                            <th style="text-align:right">Akcje</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="a : ${customer != null ? customer.addresses : null}" class="row-link">
+                            <td class="cell-main">
+                                <div class="main-title">
+                                    <span th:text="${a.street}">Ulica</span>
+
+                                    <span th:if="${a.mainAddress}"
+                                          style="margin-left:10px;font-size:.78rem;opacity:.85"
+                                          class="chip">MAIN</span>
+
+                                    <span th:if="${a.archival}"
+                                          style="margin-left:10px;font-size:.78rem;opacity:.65"
+                                          class="chip">ARCH</span>
+                                </div>
+
+                                <div class="main-sub" th:text="${a.state != null ? a.state : '—'}">—</div>
+                            </td>
+
+                            <td th:text="${a.city}">Miasto</td>
+                            <td class="mono" th:text="${a.zipCode}">00-000</td>
+                            <td th:text="${a.country}">PL</td>
+
+                            <td style="text-align:right;white-space:nowrap">
+                                <a class="chip"
+                                   th:if="${customer != null}"
+                                   th:href="@{/Addresses/EditForm(id=${a.id})}">
+                                    Edytuj
+                                </a>
+
+                                <a class="chip"
+                                   th:if="${customer != null and !a.archival}"
+                                   th:href="@{/Addresses/DeleteAddress(id=${a.id})}">
+                                    Archiwizuj
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${customer == null || customer.addresses == null || #lists.isEmpty(customer.addresses)}">
+                            <td colspan="5" style="padding:16px;color:rgba(255,255,255,0.65)">
+                                Brak adresów.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </section>
+</div>

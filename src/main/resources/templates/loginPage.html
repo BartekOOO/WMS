@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logowanie</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}" href="/css/login.css" />
+</head>
+<body>
+<main class="page">
+    <section class="card" aria-label="Panel logowania">
+        <header class="header">
+            <div class="logo" aria-hidden="true">WMS</div>
+            <h1>Zaloguj się</h1>
+            <p>Wprowadź dane, aby przejść do systemu.</p>
+        </header>
+
+        <div class="alerts">
+            <div class="alert alert-error" th:if="${param.error}">
+                Nieprawidłowy login lub hasło.
+            </div>
+            <div class="alert alert-info" th:if="${param.logout}">
+                Wylogowano pomyślnie.
+            </div>
+        </div>
+
+        <form class="form" th:action="@{/login}" method="post" autocomplete="on">
+            <div class="field">
+                <label for="username">Login</label>
+                <input id="username" name="username" type="text" placeholder="np. bartek" required autofocus />
+            </div>
+
+            <div class="field">
+                <label for="password">Hasło</label>
+                <input id="password" name="password" type="password" placeholder="••••••••" required />
+            </div>
+
+            <button class="btn" type="submit">Zaloguj</button>
+
+            <p class="hint">
+                Masz problem z dostępem? Skontaktuj się z administratorem.
+            </p>
+        </form>
+    </section>
+
+    <footer class="footer">
+        <span>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> WMS</span>
+    </footer>
+</main>
+</body>
+</html>

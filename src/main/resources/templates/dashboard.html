@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="https://www.thymeleaf.org">
+<body>
+<div th:fragment="fragment">
+
+    <section class="hero">
+        <div class="hero-card">
+            <h1>Panel główny</h1>
+            <p>
+                WMS - system do zarządzania magazynem. Obsługa kontrahentów, asortymentu,
+                stanów magazynowych oraz dokumentów PZ/WZ/MM/MS
+            </p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-k">Kontrahenci</div>
+                <div class="stat-v" th:text="${customersCount}">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-k">Towary</div>
+                <div class="stat-v" th:text="${productsCount}">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-k">Dokumenty</div>
+                <div class="stat-v" th:text="${documentsCount}">—</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card card--spaced">
+        <header class="card-h">
+            <h2>Szybkie akcje</h2>
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Customers/GetCustomers}">Otwórz kontrahentów</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+            <div class="placeholder">
+                <div class="ph-title">Miejsce na tabelę</div>
+                <div class="ph-sub">
+                    Tu wstawisz tabelkę Thymeleaf (np. kontrahentów), wykresy albo dashboard.
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

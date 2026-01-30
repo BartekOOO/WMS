@@ -1,0 +1,146 @@
+<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
+
+    <section class="card">
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Produkt</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: edycja</div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Products/GetProducts}">Wróć</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <!-- Sukces -->
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                </div>
+            </div>
+
+            <!-- Błąd -->
+            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Nie udało się zapisać produktu</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                </div>
+            </div>
+
+            <form th:object="${command}"
+                  th:action="@{/Products/EditProduct}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  style="display:grid;gap:14px">
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+
+                    <!-- LEWA: pola -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
+
+                        <div>
+                            <label class="form-label">SKU</label>
+                            <input class="form-input mono" th:field="*{sku}" placeholder="np. SKU-001"/>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Jednostka</label>
+                            <input class="form-input mono" th:field="*{unit}" placeholder="np. szt, kg, m"/>
+                        </div>
+
+                        <div style="grid-column:1 / -1">
+                            <label class="form-label">Nazwa</label>
+                            <input class="form-input" th:field="*{name}" placeholder="Pełna nazwa produktu"/>
+                        </div>
+
+                        <div>
+                            <label class="form-label">EAN</label>
+                            <input class="form-input mono" th:field="*{ean}" placeholder="opcjonalnie"/>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Cecha</label>
+                            <input class="form-input" th:field="*{feature}" placeholder="np. kolor / wariant"/>
+                        </div>
+                    </div>
+
+                    <!-- PRAWA: zdjęcie -->
+                    <section class="card product-photo-card"
+                             style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
+                        <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                            <h2 style="font-size:1.05rem">Zdjęcie</h2>
+                        </header>
+
+                        <div class="card-b">
+                            <div class="photo-box">
+
+                                <!-- Aktualne -->
+                                <div class="photo-current" th:if="${product != null && product.photoName != null}">
+                                    <img class="photo-preview"
+                                         th:src="@{/Products/Photo(id=${product.id})}"
+                                         alt="Aktualne zdjęcie"/>
+                                    <div class="photo-meta">
+                                        <div class="mono" th:text="${product.photoName}">photo.jpg</div>
+                                        <div class="muted" th:text="${product.photoContentType}">image/jpeg</div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${product == null || product.photoName == null}" class="photo-placeholder">
+                                    📷 Brak zdjęcia
+                                </div>
+
+                                <!-- Nowe -->
+                                <label class="chip" style="justify-self:start;cursor:pointer">
+                                    Zmień zdjęcie
+                                    <input type="file" name="photo" accept="image/*" style="display:none" onchange="previewPhotoEdit(event)"/>
+                                </label>
+
+                                <img id="photoPreviewEdit" class="photo-preview" style="display:none;margin-top:10px" alt="Podgląd nowego zdjęcia"/>
+
+                                <!-- Opcjonalnie: usuń zdjęcie (jeśli obsłużysz po backendzie) -->
+                                <label class="chip" style="justify-self:start;opacity:.9">
+                                    <input type="checkbox" name="removePhoto" value="1" style="margin-right:8px;transform:translateY(1px)"/>
+                                    Usuń zdjęcie
+                                </label>
+
+                                <div class="form-hint">
+                                    Jeśli wybierzesz nowe, backend powinien nadpisać <code>photoContent/photoName/photoContentType</code>.
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="form-actions">
+                    <a class="chip chip--danger"
+                       th:if="${product != null && product.id != null}"
+                       th:href="@{/Products/DeleteProduct(id=${product.id})}">
+                        🗑 Usuń
+                    </a>
+
+                    <button class="chip chip--save" type="submit">
+                        💾 Zapisz zmiany
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function previewPhotoEdit(e) {
+            const file = e.target.files && e.target.files[0];
+            const img = document.getElementById('photoPreviewEdit');
+            if (!file) { img.style.display='none'; return; }
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+        }
+    </script>
+</div>

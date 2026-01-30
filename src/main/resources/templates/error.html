@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${status != null ? (status + ' • Błąd') : 'Błąd'}">Błąd</title>
+
+    <style>
+        :root{
+          --bg1:#0b1020; --bg2:#0a0f1a;
+          --card: rgba(255,255,255,0.08);
+          --border: rgba(255,255,255,0.12);
+          --muted: rgba(255,255,255,0.68);
+          --text: rgba(255,255,255,0.92);
+          --shadow: 0 18px 52px rgba(0,0,0,0.45);
+          --radius: 18px; --radiusSm: 14px;
+          --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+          --dangerBg1: rgba(255, 80, 80, 0.20);
+          --dangerBg2: rgba(255, 80, 80, 0.10);
+          --dangerBorder: rgba(255, 120, 120, 0.35);
+        }
+
+        *{ box-sizing:border-box; }
+        html,body{ height:100%; margin:0; }
+        body{
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+          color: var(--text);
+          background:
+            radial-gradient(1100px 760px at 18% 10%, #243bff1f, transparent 55%),
+            radial-gradient(980px 720px at 84% 70%, #00d4ff1a, transparent 60%),
+            linear-gradient(180deg, var(--bg1), var(--bg2));
+          display:flex; align-items:center; justify-content:center;
+          padding: 28px;
+        }
+
+        .wrap{ width:min(980px,100%); display:grid; gap: 18px; }
+
+        .card{
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(10px);
+          overflow:hidden;
+        }
+
+        .head{
+          padding: 18px;
+          display:flex; align-items:flex-start; justify-content:space-between; gap: 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.10);
+        }
+
+        .title{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+        .title h1{ margin:0; font-size:1.4rem; letter-spacing:.2px; line-height:1.2; }
+        .subtitle{ color: var(--muted); line-height:1.45; font-size:.95rem; }
+
+        .badge-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+        .badge{
+          display:inline-flex; align-items:center; gap:8px;
+          padding: 10px 14px; border-radius: 999px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
+          color: var(--text);
+          user-select:none; white-space:nowrap;
+        }
+        .badge strong{ font-weight: 900; }
+
+        .actions{
+          padding: 14px 18px 18px;
+          display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+        }
+        .btn{
+          display:inline-flex; align-items:center; gap:8px;
+          padding: 10px 14px; border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.14);
+          background: rgba(255,255,255,0.07);
+          color: var(--text); text-decoration:none; cursor:pointer;
+          transition: filter 120ms ease, transform 120ms ease;
+        }
+        .btn:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+        .btn:active{ transform: translateY(0); }
+
+        .grid{ display:grid; gap:12px; padding: 18px; }
+
+        .kv{
+          display:grid;
+          grid-template-columns: 180px 1fr;
+          gap: 10px 14px;
+          padding: 14px;
+          border-radius: var(--radiusSm);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.10);
+        }
+        .k{ color: var(--muted); font-size:.86rem; user-select:none; }
+        .v{ min-width:0; overflow-wrap:anywhere; font-weight:700; }
+        .mono{ font-family: var(--mono); font-weight:600; letter-spacing:.2px; color: rgba(255,255,255,0.85); }
+
+        details{
+          border-radius: var(--radiusSm);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.10);
+          overflow:hidden;
+        }
+        summary{
+          cursor:pointer;
+          padding: 12px 14px;
+          list-style:none;
+          display:flex; align-items:center; justify-content:space-between; gap:10px;
+          user-select:none;
+          font-weight:900;
+        }
+        summary::-webkit-details-marker{ display:none; }
+        summary .hint{ font-weight:600; color: var(--muted); font-size:.86rem; }
+
+        pre{
+          margin:0;
+          padding: 14px;
+          max-height: 360px;
+          overflow:auto;
+          font-family: var(--mono);
+          font-size: 12.5px;
+          line-height: 1.35;
+          color: rgba(255,255,255,0.86);
+          background: rgba(0,0,0,0.22);
+          border-top: 1px solid rgba(255,255,255,0.08);
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        /* ===== Glass red tile for logs ===== */
+        .alert-glass{
+          display:flex;
+          align-items:flex-start;
+          gap:12px;
+          padding:14px 14px;
+          border-radius: 16px;
+          background: linear-gradient(180deg, var(--dangerBg1), var(--dangerBg2));
+          border: 1px solid var(--dangerBorder);
+          box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+          backdrop-filter: blur(10px);
+        }
+        .alert-glass__icon{
+          width:34px; height:34px;
+          border-radius: 12px;
+          display:grid; place-items:center;
+          font-weight: 1000;
+          color: rgba(255,255,255,0.96);
+          background: rgba(255, 80, 80, 0.35);
+          border: 1px solid rgba(255, 160, 160, 0.45);
+          box-shadow: 0 10px 22px rgba(255, 60, 60, 0.18);
+          flex: 0 0 auto;
+        }
+        .alert-glass__title{ font-weight:1000; letter-spacing:.2px; margin-bottom:4px; }
+        .alert-glass__msg{ color: rgba(255,255,255,0.86); line-height:1.35; }
+
+        .foot{
+          padding: 12px 18px 16px;
+          color: rgba(255,255,255,0.55);
+          font-size: .88rem;
+          text-align: center;
+        }
+
+        @media (max-width: 720px){
+          .kv{ grid-template-columns: 1fr; }
+          .actions{ justify-content: stretch; }
+          .btn{ justify-content:center; flex: 1; }
+        }
+    </style>
+</head>
+
+<body>
+<main class="wrap">
+
+    <!-- HEADER -->
+    <section class="card">
+        <header class="head">
+            <div class="title">
+                <h1>
+                    <span th:text="${status != null ? (status + ' — ') : ''}">500 — </span>
+                    <span th:text="${error != null ? error : 'Coś poszło nie tak'}">Coś poszło nie tak</span>
+                </h1>
+
+                <div class="subtitle"
+                     th:text="${message != null ? message : 'Wystąpił nieoczekiwany błąd podczas przetwarzania żądania.'}">
+                    Wystąpił nieoczekiwany błąd podczas przetwarzania żądania.
+                </div>
+            </div>
+
+            <div class="badge-row">
+        <span class="badge" th:if="${status != null and status >= 500}">
+          <strong>Serwer</strong> <span>problem</span>
+        </span>
+                <span class="badge" th:if="${status != null and status >= 400 and status < 500}">
+          <strong>Żądanie</strong> <span>niepoprawne</span>
+        </span>
+                <span class="badge" th:if="${path != null}">
+          <strong>Path</strong> <span class="mono" th:text="${path}">/</span>
+        </span>
+            </div>
+        </header>
+
+        <div class="actions">
+            <a class="btn" th:href="@{/}">⬅ Wróć do startu</a>
+            <a class="btn" th:if="${path != null}" th:href="@{${path}}">🔁 Spróbuj ponownie</a>
+            <a class="btn" th:href="@{/Customers/GetCustomers}">📄 Kontrahenci</a>
+        </div>
+    </section>
+
+    <!-- DETAILS -->
+    <section class="card">
+        <div class="grid">
+
+            <!-- KV -->
+            <div class="kv">
+                <div class="k">Czas</div>
+                <div class="v mono" th:text="${timestamp}">—</div>
+
+                <div class="k">Status</div>
+                <div class="v" th:text="${status}">—</div>
+
+                <div class="k">Błąd</div>
+                <div class="v" th:text="${error}">—</div>
+
+                <div class="k">Ścieżka</div>
+                <div class="v mono" th:text="${path}">—</div>
+
+                <div class="k">Wyjątek</div>
+                <div class="v mono" th:text="${exception != null ? exception : '—'}">—</div>
+
+                <div class="k">Request ID</div>
+                <div class="v mono" th:text="${requestId != null ? requestId : '—'}">—</div>
+
+                <div class="k">Metoda</div>
+                <div class="v mono" th:text="${method != null ? method : '—'}">—</div>
+            </div>
+
+            <!-- GLASS LOG TILE -->
+            <div class="alert-glass">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content" style="min-width:0;width:100%">
+                    <div class="alert-glass__title">Logi / szczegóły techniczne</div>
+                    <div class="alert-glass__msg">
+                        Poniżej masz stacktrace oraz ewentualne błędy walidacji/bindowania.
+                    </div>
+
+                    <!-- stacktrace -->
+                    <details style="margin-top:12px" th:if="${trace != null}">
+                        <summary>
+                            <span>Stacktrace</span>
+                            <span class="hint">kliknij, aby rozwinąć</span>
+                        </summary>
+                        <pre th:text="${trace}">—</pre>
+                    </details>
+
+                    <details style="margin-top:12px" th:if="${trace == null}">
+                        <summary>
+                            <span>Stacktrace</span>
+                            <span class="hint">brak</span>
+                        </summary>
+                        <pre>Brak stacktrace (wyłączone lub brak danych).</pre>
+                    </details>
+
+                    <!-- validation / binding errors (jeśli trafią do error attributes) -->
+                    <details style="margin-top:12px" th:if="${errors != null}">
+                        <summary>
+                            <span>Błędy walidacji</span>
+                            <span class="hint">kliknij, aby rozwinąć</span>
+                        </summary>
+                        <pre th:text="${errors}">—</pre>
+                    </details>
+
+                    <!-- fallback: pokazuj przyczyny -->
+                    <details style="margin-top:12px" th:if="${cause != null}">
+                        <summary>
+                            <span>Przyczyna</span>
+                            <span class="hint">kliknij, aby rozwinąć</span>
+                        </summary>
+                        <pre th:text="${cause}">—</pre>
+                    </details>
+                </div>
+            </div>
+
+            <!-- RAW MAP fallback: jak w modelu wyląduje 'errorAttributes' -->
+            <details th:if="${errorAttributes != null}">
+                <summary>
+                    <span>Pełne ErrorAttributes</span>
+                    <span class="hint">debug</span>
+                </summary>
+                <pre th:text="${errorAttributes}">—</pre>
+            </details>
+
+        </div>
+
+        <div class="foot">
+            Jeśli problem się powtarza, zrób screenshot + skopiuj logi z czerwonego okna i podeślij prowadzącemu / devowi.
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

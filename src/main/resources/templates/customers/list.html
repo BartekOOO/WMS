@@ -1,0 +1,64 @@
+<div th:fragment="fragment" xmlns:th="http://www.w3.org/1999/xhtml">
+    <section class="card">
+        <header class="card-h">
+            <h2>Kontrahenci</h2>
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Customers/AddForm}">Dodaj</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+            <div class="table-wrap">
+
+                <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                    <div class="alert-glass__icon">✓</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Sukces</div>
+                        <div class="alert-glass__msg" th:text="${success}">
+                            Operacja zakończona powodzeniem.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Błąd</div>
+                        <div class="alert-glass__msg" th:text="${error}">
+                            Wystąpił błąd.
+                        </div>
+                    </div>
+                </div>
+
+
+                <table class="table table-click">
+                    <thead>
+                    <tr>
+                        <th>Akronim</th>
+                        <th>Nazwa</th>
+                        <th>Typ</th>
+                        <th>Adres główny</th>
+                        <th>NIP</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="c : ${customers}" class="row-link">
+                        <td class="mono" th:text="${c.acronym}">ABC</td>
+
+                        <td class="cell-main">
+                            <a class="row-overlay" th:href="@{/Customers/EditForm(id=${c.id})}" aria-label="Otwórz kontrahenta"></a>
+                            <div class="main-title" th:text="${c.fullName}">Nazwa</div>
+                        </td>
+
+                        <td th:text="${c.customerTypeLabel}">Dostawca</td>
+                        <td th:text="${c.mainAddressLine}">Adres</td>
+
+                        <td class="mono" th:text="${c.nip}">000</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>

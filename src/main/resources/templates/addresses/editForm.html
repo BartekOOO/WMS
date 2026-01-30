@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="fragment">
+
+    <section class="card">
+
+
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Edycja adresu</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">
+                    Zmień dane adresowe i zapisz.
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip"
+                   th:href="@{/Customers/EditForm(id=${customer != null ? customer.id : customerId})}">
+                    Wróć do kontrahenta
+                </a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <div class="alert alert-err" th:if="${error}">
+                <div class="alert-title">Nie udało się wykonać operacji</div>
+                <div class="alert-body" th:text="${error}">Błąd</div>
+            </div>
+
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">OK</div>
+                </div>
+            </div>
+
+            <!-- (Opcjonalnie) podgląd kontrahenta -->
+            <div class="subcard" th:if="${customer != null}">
+                <div class="subcard-title">Kontrahent</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Nazwa</label>
+                        <input class="input" type="text" th:value="${customer.fullName}" readonly />
+                    </div>
+                    <div class="field">
+                        <label>NIP</label>
+                        <input class="input mono" type="text" th:value="${customer.nip}" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <form class="form"
+                  th:action="@{/Addresses/EditAddress}"
+                  th:object="${address}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="grid-2">
+                    <div class="field">
+                        <label for="street">Ulica</label>
+                        <input id="street" class="input" type="text"
+                               th:field="*{street}"
+                               autocomplete="street-address"
+                               required />
+                        <div class="err" th:if="${#fields.hasErrors('street')}"
+                             th:errors="*{street}">Błąd</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="city">Miasto</label>
+                        <input id="city" class="input" type="text"
+                               th:field="*{city}"
+                               autocomplete="address-level2"
+                               required />
+                        <div class="err" th:if="${#fields.hasErrors('city')}"
+                             th:errors="*{city}">Błąd</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="state">Województwo / Stan</label>
+                        <input id="state" class="input" type="text"
+                               th:field="*{state}"
+                               autocomplete="address-level1" />
+                        <div class="err" th:if="${#fields.hasErrors('state')}"
+                             th:errors="*{state}">Błąd</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="zipCode">Kod pocztowy</label>
+                        <input id="zipCode" class="input mono" type="text"
+                               th:field="*{zipCode}"
+                               autocomplete="postal-code" />
+                        <div class="err" th:if="${#fields.hasErrors('zipCode')}"
+                             th:errors="*{zipCode}">Błąd</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="country">Kraj</label>
+                        <input id="country" class="input" type="text"
+                               th:field="*{country}"
+                               autocomplete="country" />
+                        <div class="err" th:if="${#fields.hasErrors('country')}"
+                             th:errors="*{country}">Błąd</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn ghost"
+                       th:href="@{/Customers/EditForm(id=${customer != null ? customer.id : customerId})}">
+                        Powrót
+                    </a>
+
+                    <button class="btn mainglass"
+                            type="submit"
+                            formaction="/Addresses/SetAsMain"
+                            formmethod="post"
+                            th:disabled="${address.isMainAddress()}"
+                            th:title="${address.isMainAddress() ? 'Ten adres jest już główny' : 'Ustaw ten adres jako główny'}">
+                        <span th:text="${address.isMainAddress() ? 'Adres główny ✓' : 'Ustaw jako główny'}">Ustaw jako główny</span>
+                    </button>
+
+                    <button class="btn primary" type="submit">
+                        Zapisz zmiany
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </section>
+
+
+</div>
+</body>
+</html>

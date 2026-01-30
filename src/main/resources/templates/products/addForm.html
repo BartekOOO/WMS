@@ -1,0 +1,191 @@
+<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
+
+    <section class="card">
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Nowy produkt</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: dodawanie</div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Products/GetProducts?isArchival=false}">Wróć</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <!-- Sukces -->
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                </div>
+            </div>
+
+            <!-- Błąd ogólny -->
+            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Nie udało się zapisać produktu</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                </div>
+            </div>
+
+            <form th:object="${customer}"
+                  th:action="@{/Products/RegisterProduct}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  style="display:grid;gap:14px">
+
+                <!-- Podsumowanie walidacji -->
+                <div class="alert-glass alert-glass--danger"
+                     th:if="${#fields.hasAnyErrors()}"
+                     style="margin-bottom:12px">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Popraw błędy w formularzu</div>
+                        <div class="alert-glass__msg">
+                            <ul style="margin:0;padding-left:18px">
+                                <li th:each="e : ${#fields.allErrors()}" th:text="${e}">Błąd</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+
+                    <!-- LEWA: pola -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
+
+                        <div>
+                            <label class="form-label" for="sku">SKU</label>
+                            <input id="sku" class="form-input mono"
+                                   th:field="*{product.sku}"
+                                   placeholder="np. SKU-001"/>
+                            <div class="form-hint">Unikalny kod produktu.</div>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.sku')}"
+                                 th:errors="*{product.sku}"></div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="unit">Podstawowa jednostka</label>
+                            <input id="unit" class="form-input mono"
+                                   th:field="*{product.unit}"
+                                   placeholder="np. szt, kg, m"/>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.unit')}"
+                                 th:errors="*{product.unit}"></div>
+                        </div>
+
+                        <div style="grid-column:1 / -1">
+                            <label class="form-label" for="name">Nazwa</label>
+                            <input id="name" class="form-input"
+                                   th:field="*{product.name}"
+                                   placeholder="Pełna nazwa produktu"/>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.name')}"
+                                 th:errors="*{product.name}"></div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="ean">EAN</label>
+                            <input id="ean" class="form-input mono"
+                                   th:field="*{product.ean}"
+                                   placeholder="opcjonalnie"/>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.ean')}"
+                                 th:errors="*{product.ean}"></div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="brand">Marka</label>
+                            <input id="brand" class="form-input"
+                                   th:field="*{product.brand}"
+                                   placeholder="np. Bosch / DeWalt / ..."/>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.brand')}"
+                                 th:errors="*{product.brand}"></div>
+                        </div>
+
+                        <!-- Opis (większa kontrolka) -->
+                        <div style="grid-column:1 / -1">
+                            <label class="form-label" for="description">Opis</label>
+                            <textarea id="description"
+                                      class="form-input"
+                                      th:field="*{product.description}"
+                                      placeholder="Opis produktu (opcjonalnie)"
+                                      style="min-height:140px;resize:vertical"></textarea>
+                            <div class="form-hint">Możesz wkleić dłuższy opis.</div>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('product.description')}"
+                                 th:errors="*{product.description}"></div>
+                        </div>
+
+                        <!-- Data dodania - tylko podgląd -->
+                        <div style="grid-column:1 / -1">
+                            <label class="form-label">Data dodania</label>
+
+                            <input class="form-input mono"
+                                   type="text"
+                                   readonly
+                                   th:value="${
+                                   customer.product.createdAt != null
+                                     ? T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(customer.product.createdAt)
+                                     : T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(T(java.time.LocalDateTime).now())
+                                }"/>
+
+                            <div class="form-hint">Ustawiane automatycznie podczas zapisu.</div>
+                        </div>
+
+                    </div>
+
+                    <!-- PRAWA: zdjęcie -->
+                    <section class="card product-photo-card"
+                             style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
+                        <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                            <h2 style="font-size:1.05rem">Zdjęcie</h2>
+                        </header>
+                        <div class="card-b">
+                            <div class="photo-box">
+                                <img id="photoPreview" class="photo-preview" style="display:none" alt="Podgląd zdjęcia"/>
+                                <div id="photoPlaceholder" class="photo-placeholder">📷</div>
+
+                                <label class="chip" style="justify-self:start;cursor:pointer">
+                                    Wybierz plik
+                                    <input type="file" name="photo" accept="image/*"
+                                           style="display:none"
+                                           onchange="previewPhoto(event)"/>
+                                </label>
+
+                                <div class="form-hint">
+                                    JPG/PNG/WebP.
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <div class="form-actions">
+                    <button class="chip chip--save" type="submit">💾 Zapisz</button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function previewPhoto(e) {
+            const file = e.target.files && e.target.files[0];
+            const img = document.getElementById('photoPreview');
+            const ph = document.getElementById('photoPlaceholder');
+            if (!file) { img.style.display='none'; ph.style.display='grid'; return; }
+            const url = URL.createObjectURL(file);
+            img.src = url;
+            img.style.display = 'block';
+            ph.style.display = 'none';
+        }
+    </script>
+</div>
