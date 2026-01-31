@@ -1,10 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
 
-</body>
-</html>
+    <section class="card">
+        <header class="card-h">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <h2>Nowy magazyn</h2>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: dodawanie</div>
+            </div>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Warehouses/GetWarehouses}">Wróć</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+
+            <!-- Sukces -->
+            <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                <div class="alert-glass__icon">✓</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Sukces</div>
+                    <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                </div>
+            </div>
+
+            <!-- Błąd -->
+            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                <div class="alert-glass__icon">!</div>
+                <div class="alert-glass__content">
+                    <div class="alert-glass__title">Nie udało się wykonać operacji</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                </div>
+            </div>
+
+            <form th:object="${command}"
+                  th:action="@{/Warehouses/RegisterWarehouse}"
+                  method="post"
+                  style="display:grid;gap:14px">
+
+                <!-- MAGAZYN -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div>
+                        <label class="form-label">Kod</label>
+                        <input class="form-input mono"
+                               th:field="*{warehouse.code}"
+                               placeholder="np. MAG-01"
+                               required/>
+                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.code')}" th:errors="*{warehouse.code}"></div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Nazwa</label>
+                        <input class="form-input"
+                               th:field="*{warehouse.name}"
+                               placeholder="np. Magazyn centralny"
+                               required/>
+                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.name')}" th:errors="*{warehouse.name}"></div>
+                    </div>
+
+                    <div style="grid-column:1 / -1">
+                        <label class="form-label">Opis (opcjonalnie)</label>
+                        <textarea class="form-input"
+                                  th:field="*{warehouse.description}"
+                                  style="min-height:120px;resize:vertical"
+                                  placeholder="Krótki opis magazynu..."></textarea>
+                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.description')}" th:errors="*{warehouse.description}"></div>
+                    </div>
+                </div>
+
+                <div style="height:18px"></div>
+
+                <!-- ADRES MAGAZYNU -->
+                <section class="card"
+                         style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
+                    <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%">
+                            <h2 style="font-size:1.05rem">Adres magazynu</h2>
+
+                            <!-- Toggle: istniejący adres firmy vs nowy -->
+                            <label class="switch" style="margin-left:auto">
+                                <input type="checkbox"
+                                       id="useExistingAddress"
+                                       th:checked="${command.addressId != null}"
+                                       onchange="toggleWarehouseAddressMode()"/>
+                                <span class="switch-tx">Użyj istniejącego adresu firmy</span>
+                            </label>
+                        </div>
+                    </header>
+
+                    <div class="card-b" style="display:grid;gap:12px">
+
+                        <div class="form-hint" style="margin-top:-4px">
+                            Wybierz: adres z listy (firmowy) albo wpisz nowy. Jedno z dwóch jest obowiązkowe.
+                        </div>
+
+                        <!-- 1) WYBÓR ISTNIEJĄCEGO -->
+                        <div id="addrPick"
+                             th:style="${command.addressId != null ? '' : 'display:none'}">
+                            <label class="form-label">Adres firmy</label>
+
+                            <select class="form-input"
+                                    id="addressIdSelect"
+                                    th:field="*{addressId}">
+                                <option value="">— wybierz adres —</option>
+                                <option th:each="a : ${companyAddresses}"
+                                        th:value="${a.id}"
+                                        th:text="${a.street + ', ' + a.zipCode + ' ' + a.city + ', ' + a.country}">
+                                </option>
+                            </select>
+
+                            <div class="form-err" th:if="${#fields.hasErrors('addressId')}" th:errors="*{addressId}"></div>
+
+                            <div class="form-hint"
+                                 th:text="${companyCustomer != null ? 'Źródło: ' + companyCustomer.acronym + ' • ' + companyCustomer.fullName : 'Brak skonfigurowanego kontrahenta firmowego / brak adresów.'}">
+                                —
+                            </div>
+                        </div>
+
+                        <!-- 2) NOWY ADRES -->
+                        <div id="addrNew"
+                             th:style="${command.addressId != null ? 'display:none' : ''}">
+
+                            <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+                                <div>
+                                    <label class="form-label">Ulica</label>
+                                    <input class="form-input"
+                                           id="addrStreet"
+                                           th:field="*{address.street}"
+                                           placeholder="Ulica, nr..."
+                                           required/>
+                                    <div class="form-err" th:if="${#fields.hasErrors('address.street')}" th:errors="*{address.street}"></div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Kod</label>
+                                    <input class="form-input"
+                                           id="addrZip"
+                                           th:field="*{address.zipCode}"
+                                           placeholder="00-000"
+                                           required/>
+                                    <div class="form-err" th:if="${#fields.hasErrors('address.zipCode')}" th:errors="*{address.zipCode}"></div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Miasto</label>
+                                    <input class="form-input"
+                                           id="addrCity"
+                                           th:field="*{address.city}"
+                                           placeholder="Miasto"
+                                           required/>
+                                    <div class="form-err" th:if="${#fields.hasErrors('address.city')}" th:errors="*{address.city}"></div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Województwo</label>
+                                    <input class="form-input"
+                                           id="addrState"
+                                           th:field="*{address.state}"
+                                           placeholder="np. Mazowieckie"/>
+                                    <div class="form-err" th:if="${#fields.hasErrors('address.state')}" th:errors="*{address.state}"></div>
+                                </div>
+
+                                <div style="grid-column:1 / -1">
+                                    <label class="form-label">Kraj</label>
+                                    <input class="form-input"
+                                           id="addrCountry"
+                                           th:field="*{address.country}"
+                                           placeholder="PL"
+                                           required/>
+                                    <div class="form-err" th:if="${#fields.hasErrors('address.country')}" th:errors="*{address.country}"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button class="chip chip--save" type="submit">
+                        💾 Utwórz magazyn
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function toggleWarehouseAddressMode(){
+            const chk = document.getElementById('useExistingAddress');
+            const pick = document.getElementById('addrPick');
+            const nw   = document.getElementById('addrNew');
+            const sel  = document.getElementById('addressIdSelect');
+
+            const street  = document.getElementById('addrStreet');
+            const zip     = document.getElementById('addrZip');
+            const city    = document.getElementById('addrCity');
+            const country = document.getElementById('addrCountry');
+
+            const useExisting = !!(chk && chk.checked);
+
+            if (pick) pick.style.display = useExisting ? '' : 'none';
+            if (nw)   nw.style.display   = useExisting ? 'none' : '';
+
+            // tryb "adres istniejący" -> wymagaj selecta, zdejmij required z pól
+            if (sel) sel.required = useExisting;
+
+            // required tylko na kluczowych polach, reszta jak wolisz
+            if (street)  street.required  = !useExisting;
+            if (zip)     zip.required     = !useExisting;
+            if (city)    city.required    = !useExisting;
+            if (country) country.required = !useExisting;
+        }
+
+        (function initWarehouseAddressMode(){
+            toggleWarehouseAddressMode();
+        })();
+    </script>
+
+</div>
