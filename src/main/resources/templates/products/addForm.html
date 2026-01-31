@@ -8,7 +8,7 @@
             </div>
 
             <div class="card-actions">
-                <a class="chip" th:href="@{/Products/GetProducts?isArchival=false}">Wróć</a>
+                <a class="chip" th:href="@{/Products/GetProducts(isArchival=false)}">Wróć</a>
             </div>
         </header>
 
@@ -32,7 +32,8 @@
                 </div>
             </div>
 
-            <form th:object="${customer}"
+            <!-- WAŻNE: th:object musi wskazywać "command" -->
+            <form th:object="${command}"
                   th:action="@{/Products/RegisterProduct}"
                   method="post"
                   enctype="multipart/form-data"
@@ -109,7 +110,6 @@
                                  th:errors="*{product.brand}"></div>
                         </div>
 
-                        <!-- Opis (większa kontrolka) -->
                         <div style="grid-column:1 / -1">
                             <label class="form-label" for="description">Opis</label>
                             <textarea id="description"
@@ -131,10 +131,10 @@
                                    type="text"
                                    readonly
                                    th:value="${
-                                   customer.product.createdAt != null
-                                     ? T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(customer.product.createdAt)
-                                     : T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(T(java.time.LocalDateTime).now())
-                                }"/>
+                                      command.product.createdAt != null
+                                        ? T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(command.product.createdAt)
+                                        : T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(T(java.time.LocalDateTime).now())
+                                   }"/>
 
                             <div class="form-hint">Ustawiane automatycznie podczas zapisu.</div>
                         </div>

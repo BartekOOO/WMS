@@ -69,7 +69,7 @@ public class CustomersController {
     }
 
     @PostMapping("/RegisterCustomer")
-    public String RegisterCustomer(Model model, RedirectAttributes ra, @ModelAttribute RegisterCustomerCommand command) {
+    public String Register(Model model, RedirectAttributes ra, @ModelAttribute RegisterCustomerCommand command) {
         try {
             var result = customersService.registerCustomer(command);
             ra.addFlashAttribute("success", "Pomyślnie udało się dodać '" + result.getAcronym() + "'");
@@ -85,7 +85,7 @@ public class CustomersController {
 
 
     @PostMapping("/EditCustomer")
-    public String EditCustomer(Model model, RedirectAttributes ra, @ModelAttribute EditCustomerCommand command) {
+    public String Edit(Model model, RedirectAttributes ra, @ModelAttribute EditCustomerCommand command) {
         try {
             customersService.editCustomer(command);
             var date = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -108,7 +108,7 @@ public class CustomersController {
 
 
     @GetMapping("/DeleteCustomer")
-    public String DeleteCustomer(Model model, RedirectAttributes ra, Long id){
+    public String Delete(Model model, RedirectAttributes ra, Long id){
         try{
             var command = new DeleteCustomerCommand(id);
             var customer = customersService.getCustomers(new GetCustomersCommand().whereIdEquals(id)).getFirst();

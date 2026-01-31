@@ -62,7 +62,7 @@ public class AddressesController {
     }
 
     @PostMapping("RegisterAddress")
-    public String RegisterAddress(@ModelAttribute RegisterAddressCommand command, Model model, RedirectAttributes ra ){
+    public String Register(@ModelAttribute RegisterAddressCommand command, Model model, RedirectAttributes ra ){
         try {
             var result = addressesService.registerAddress(command);
             ra.addFlashAttribute("success", "Pomyślnie udało się dodać nowy adres");
@@ -77,7 +77,7 @@ public class AddressesController {
     }
 
     @PostMapping("EditAddress")
-    public String EditAddress(@ModelAttribute EditAddressCommand command, Model model, RedirectAttributes ra ){
+    public String Edit(@ModelAttribute EditAddressCommand command, Model model, RedirectAttributes ra ){
         try {
             var result = addressesService.editAddress(command);
             ra.addFlashAttribute("success", "Pomyślnie udało się zapisać adres");
@@ -103,7 +103,7 @@ public class AddressesController {
 
 
     @GetMapping("/DeleteAddress")
-    public String DeleteAddress(Model model, RedirectAttributes ra, Long id){
+    public String Delete(Model model, RedirectAttributes ra, Long id){
         Long ref = 0l;
         try{
             var command = new DeleteAddressCommand(id);

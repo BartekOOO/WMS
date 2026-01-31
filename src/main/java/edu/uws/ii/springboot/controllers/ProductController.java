@@ -3,7 +3,9 @@ package edu.uws.ii.springboot.controllers;
 import edu.uws.ii.springboot.commands.addresses.EditAddressCommand;
 import edu.uws.ii.springboot.commands.addresses.GetAddressesCommand;
 import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
+import edu.uws.ii.springboot.commands.customers.EditCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.customers.RegisterCustomerCommand;
 import edu.uws.ii.springboot.commands.products.EditProductCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.RegisterProductCommand;
@@ -12,10 +14,10 @@ import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Product;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Controller
@@ -50,8 +52,7 @@ public class ProductController {
         model.addAttribute("content", "products/addForm :: fragment");
         var command = new RegisterProductCommand();
 
-        model.addAttribute("customer", command);
-        model.addAttribute("address", command);
+        model.addAttribute("command", command);
         model.addAttribute("title", "WMS • Dodawanie produktu");
         return "app";
     }
@@ -66,6 +67,39 @@ public class ProductController {
         model.addAttribute("command", new EditProductCommand(productToEdit));
         model.addAttribute("title", "WMS • Edytowanie produktu");
         return "app";
+    }
+
+
+    @PostMapping("/RegisterProduct")
+    public String Register(Model model, RedirectAttributes ra, @ModelAttribute RegisterProductCommand command) {
+        try {
+            var result = productsService.registerProduct(command);
+            ra.addFlashAttribute("success", "Pomyślnie udało się dodać '" + result.getName() + "'");
+            return "redirect:/Products/EditForm?id=" + result.getId();
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("content", "Products/AddForm :: fragment");
+            model.addAttribute("command", command);
+            model.addAttribute("title", "WMS • Dodawanie produktu");
+            return "app";
+        }
+    }
+
+
+    @PostMapping("/EditProduct")
+    public String Edit(Model model, RedirectAttributes ra, @ModelAttribute EditProductCommand command) {
+        try {
+            productsService.editProduct(command);
+            var date = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            ra.addFlashAttribute("success", date + " • Pomyślnie zapisano zmiany");
+            return "redirect:/Products/EditForm?id=" + command.getId();
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("content", "Products/EditForm :: fragment");
+            model.addAttribute("command", command);
+            model.addAttribute("title", "WMS • Edytowanie produktu");
+            return "app";
+        }
     }
 
 }
