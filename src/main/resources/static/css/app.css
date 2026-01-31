@@ -1317,3 +1317,35 @@ select.form-input option:checked {
     background: rgba(20, 25, 35, 0.85);
   }
 }
+
+
+
+
+/* === Glass tinted blocks for sectors === */
+.sector-card{
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Załadunek – niebiesko/turkus */
+.sector-card--loading{
+  background:
+    linear-gradient(180deg, rgba(60,140,255,0.14), rgba(0,212,255,0.06));
+  border-color: rgba(120,180,255,0.22);
+}
+
+/* Rozładunek – zielonkawy */
+.sector-card--unloading{
+  background:
+    linear-gradient(180deg, rgba(46,204,113,0.14), rgba(46,204,113,0.06));
+  border-color: rgba(120,240,170,0.20);
+}
+
+/* Zwykły – fiolet / neutral */
+.sector-card--normal{
+  background:
+    linear-gradient(180deg, rgba(170,90,255,0.14), rgba(170,90,255,0.06));
+  border-color: rgba(200,140,255,0.20);
+}

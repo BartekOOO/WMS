@@ -172,7 +172,6 @@
 <body>
 <main class="wrap">
 
-    <!-- HEADER -->
     <section class="card">
         <header class="head">
             <div class="title">
@@ -207,11 +206,9 @@
         </div>
     </section>
 
-    <!-- DETAILS -->
     <section class="card">
         <div class="grid">
 
-            <!-- KV -->
             <div class="kv">
                 <div class="k">Czas</div>
                 <div class="v mono" th:text="${timestamp}">—</div>
@@ -235,7 +232,6 @@
                 <div class="v mono" th:text="${method != null ? method : '—'}">—</div>
             </div>
 
-            <!-- GLASS LOG TILE -->
             <div class="alert-glass">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content" style="min-width:0;width:100%">
@@ -244,7 +240,6 @@
                         Poniżej masz stacktrace oraz ewentualne błędy walidacji/bindowania.
                     </div>
 
-                    <!-- stacktrace -->
                     <details style="margin-top:12px" th:if="${trace != null}">
                         <summary>
                             <span>Stacktrace</span>
@@ -261,7 +256,6 @@
                         <pre>Brak stacktrace (wyłączone lub brak danych).</pre>
                     </details>
 
-                    <!-- validation / binding errors (jeśli trafią do error attributes) -->
                     <details style="margin-top:12px" th:if="${errors != null}">
                         <summary>
                             <span>Błędy walidacji</span>
@@ -270,7 +264,6 @@
                         <pre th:text="${errors}">—</pre>
                     </details>
 
-                    <!-- fallback: pokazuj przyczyny -->
                     <details style="margin-top:12px" th:if="${cause != null}">
                         <summary>
                             <span>Przyczyna</span>
@@ -281,7 +274,6 @@
                 </div>
             </div>
 
-            <!-- RAW MAP fallback: jak w modelu wyląduje 'errorAttributes' -->
             <details th:if="${errorAttributes != null}">
                 <summary>
                     <span>Pełne ErrorAttributes</span>

@@ -1,5 +1,6 @@
 package edu.uws.ii.springboot.models;
 
+import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -57,5 +58,21 @@ public class Warehouse implements Serializable {
 
     public void removeSector(Sector sector) {
         this.sectors.remove(sector);
+    }
+
+    public Sector getLoadingHub(){
+        for(Sector s: sectors){
+            if(s.getType() == SectorTypeEnum.LoadingHub)
+                return s;
+        }
+        return null;
+    }
+
+    public Sector getUnloadingHub(){
+        for(Sector s: sectors){
+            if(s.getType() == SectorTypeEnum.LoadingHub)
+                return s;
+        }
+        return null;
     }
 }

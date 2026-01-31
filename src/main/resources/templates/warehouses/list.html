@@ -7,7 +7,6 @@
             <div class="card-actions">
                 <a class="chip" th:href="@{/Warehouses/AddForm}">Dodaj</a>
 
-                <!-- Toggle archiwalnych (zachowuje inne filtry) -->
                 <a class="chip chip--muted"
                    th:if="${param.includeArchival == null}"
                    th:href="@{/Warehouses/GetWarehouses(includeArchival=true,
@@ -26,7 +25,6 @@
         <div class="card-b">
             <div class="table-wrap">
 
-                <!-- PANEL FILTRÓW -->
                 <div class="filters" id="whFilters"
                      th:classappend="${param.code != null || param.name != null || param.includeArchival != null ? ' open' : ''}">
 
@@ -69,7 +67,6 @@
                     </div>
                 </div>
 
-                <!-- alerty -->
                 <div class="alert-glass alert-glass--success" th:if="${success != null}">
                     <div class="alert-glass__icon">✓</div>
                     <div class="alert-glass__content">
@@ -111,7 +108,6 @@
                                 <span class="tag tag--danger" th:if="${w.isArchival()}">Archiwalny</span>
                             </div>
 
-                            <!-- “pod spodem” jak marka w produktach: tu adres -->
                             <div class="main-sub"
                                  th:text="${
                                     w.address != null
@@ -122,13 +118,11 @@
                             </div>
                         </td>
 
-                        <!-- Sektory: tylko liczba (nie robimy 200 kolumn) -->
                         <td class="mono"
                             th:text="${w.sectors != null ? #lists.size(w.sectors) : 0}">
                             0
                         </td>
 
-                        <!-- Pracownicy: liczba + mini “podgląd” max 2 nazwiska -->
                         <td>
                             <div class="mono" th:text="${w.employees != null ? #lists.size(w.employees) : 0}">0</div>
                             <div class="main-sub"

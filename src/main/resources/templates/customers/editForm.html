@@ -14,7 +14,6 @@
 
         <div class="card-b">
 
-            <!-- Sukces -->
             <div class="alert-glass alert-glass--success" th:if="${success != null}">
                 <div class="alert-glass__icon">✓</div>
                 <div class="alert-glass__content">
@@ -23,7 +22,6 @@
                 </div>
             </div>
 
-            <!-- Błąd -->
             <div class="alert-glass alert-glass--danger" th:if="${error != null}">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
@@ -32,7 +30,6 @@
                 </div>
             </div>
 
-            <!-- FORM (EditCustomerCommand) -->
             <form th:object="${command}"
                   th:action="@{/Customers/EditCustomer}"
                   method="post"
@@ -101,7 +98,6 @@
 
             <div style="height:18px"></div>
 
-            <!-- MAIN ADDRESS (preview) -->
             <section class="card"
                      style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
                 <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
@@ -118,7 +114,6 @@
 
             <div style="height:18px"></div>
 
-            <!-- ADDRESSES LIST -->
             <section>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
                     <div style="font-weight:900">Adresy</div>

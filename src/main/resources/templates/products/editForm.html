@@ -1,11 +1,9 @@
 <div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
 
-    <!-- anchor do przewijania -->
     <div id="top"></div>
 
     <section class="card">
         <header class="card-h">
-            <!-- LEWA: tytuł + tag statusu -->
             <div style="display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap">
                 <h2 style="margin:0">Produkt</h2>
 
@@ -24,7 +22,6 @@
                 </div>
             </div>
 
-            <!-- PRAWA: akcje -->
             <div class="card-actions">
                 <a class="chip" th:href="@{/Products/GetProducts(isArchival=false)}">Wróć</a>
             </div>
@@ -32,7 +29,6 @@
 
         <div class="card-b">
 
-            <!-- Sukces -->
             <div class="alert-glass alert-glass--success" th:if="${success != null}">
                 <div class="alert-glass__icon">✓</div>
                 <div class="alert-glass__content">
@@ -41,7 +37,6 @@
                 </div>
             </div>
 
-            <!-- Błąd -->
             <div class="alert-glass alert-glass--danger" th:if="${error != null}">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
@@ -50,7 +45,6 @@
                 </div>
             </div>
 
-            <!-- INFO: archiwalny -->
             <div class="alert-glass alert-glass--danger"
                  th:if="${product != null && (product.archival or product.isArchival)}">
                 <div class="alert-glass__icon">⛔</div>
@@ -62,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- FORM (EditProductCommand) -->
             <form th:object="${command}"
                   th:action="@{/Products/EditProduct}"
                   method="post"
@@ -74,7 +67,6 @@
 
                 <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
 
-                    <!-- LEWA: pola produktu -->
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
 
                         <div>
@@ -145,7 +137,6 @@
 
                     </div>
 
-                    <!-- PRAWA: zdjęcie -->
                     <section class="card product-photo-card"
                              style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
                         <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
@@ -218,7 +209,6 @@
 
             <div style="height:18px"></div>
 
-            <!-- JEDNOSTKI -->
             <section id="units">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
                     <div style="font-weight:900">Jednostki</div>
@@ -260,12 +250,10 @@
 
                             <td th:text="${auxUnit}">opak</td>
 
-                            <!-- ✅ teraz pokazujemy N (ile podstawowych w 1 pomocniczej) -->
                             <td class="mono" th:text="${nTxt}">12</td>
 
                             <td>
                                 <div class="unit-eq mono">
-                                    <!-- ✅ GŁÓWNE: 1 pomocnicza = N podstawowych -->
                                     <div class="unit-eq__line">
                                         1x <span th:text="${auxUnit}">opak</span>
                                         =
@@ -273,7 +261,6 @@
                                         <span th:text="${baseUnit}">szt</span>
                                     </div>
 
-                                    <!-- opcjonalnie: odwrotność jako dopisek -->
                                     <div class="unit-eq__sub">
                                         1x <span th:text="${baseUnit}">szt</span>
                                         =
@@ -322,7 +309,6 @@
 
             <div style="height:18px"></div>
 
-            <!-- CECHY -->
             <section id="props">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
                     <div style="font-weight:900">Cechy</div>
@@ -387,7 +373,6 @@
         </div>
     </section>
 
-    <!-- MODAL: DODAJ JEDNOSTKĘ -->
     <div class="modal" id="unitAdd">
         <div class="modal__backdrop" onclick="closeModal('unitAdd')"></div>
         <div class="modal__dialog">
@@ -413,7 +398,6 @@
 
                 <div class="field">
                     <label class="form-label">Przelicznik</label>
-                    <!-- ✅ TERAZ: ile jednostek podstawowych w 1 pomocniczej -->
                     <input class="form-input mono"
                            id="unitAddMult"
                            name="multiplier"
@@ -433,7 +417,6 @@
         </div>
     </div>
 
-    <!-- MODAL: EDYTUJ JEDNOSTKĘ -->
     <div class="modal" id="unitEdit">
         <div class="modal__backdrop" onclick="closeModal('unitEdit')"></div>
         <div class="modal__dialog">
@@ -474,7 +457,6 @@
         </div>
     </div>
 
-    <!-- MODAL: DODAJ CECHĘ -->
     <div class="modal" id="propAdd">
         <div class="modal__backdrop" onclick="closeModal('propAdd')"></div>
         <div class="modal__dialog">
@@ -503,7 +485,6 @@
         </div>
     </div>
 
-    <!-- MODAL: EDYTUJ CECHĘ -->
     <div class="modal" id="propEdit">
         <div class="modal__backdrop" onclick="closeModal('propEdit')"></div>
         <div class="modal__dialog">

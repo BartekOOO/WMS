@@ -4,6 +4,7 @@ import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
+import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
@@ -158,6 +159,12 @@ public class WarehousesService implements IWarehousesService {
         var warehouse = warehouseRepository.getById(command.getWarehouseId());
         if(warehouse == null)
             throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
+
+        if(command.getSector().getType() == SectorTypeEnum.LoadingHub && warehouse.getLoadingHub() != null)
+            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada zdefiniowany sektor załadunkowy");
+
+        if(command.getSector().getType() == SectorTypeEnum.UnloadingHub && warehouse.getUnloadingHub() != null)
+            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada zdefiniowany sektor rozładunkowy");
 
         var newSector = sectorsRepository.save(command.getSector());
         newSector.setWarehouse(warehouse);

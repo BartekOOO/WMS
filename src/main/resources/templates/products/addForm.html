@@ -14,7 +14,6 @@
 
         <div class="card-b">
 
-            <!-- Sukces -->
             <div class="alert-glass alert-glass--success" th:if="${success != null}">
                 <div class="alert-glass__icon">✓</div>
                 <div class="alert-glass__content">
@@ -23,7 +22,6 @@
                 </div>
             </div>
 
-            <!-- Błąd ogólny -->
             <div class="alert-glass alert-glass--danger" th:if="${error != null}">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
@@ -32,14 +30,12 @@
                 </div>
             </div>
 
-            <!-- WAŻNE: th:object musi wskazywać "command" -->
             <form th:object="${command}"
                   th:action="@{/Products/RegisterProduct}"
                   method="post"
                   enctype="multipart/form-data"
                   style="display:grid;gap:14px">
 
-                <!-- Podsumowanie walidacji -->
                 <div class="alert-glass alert-glass--danger"
                      th:if="${#fields.hasAnyErrors()}"
                      style="margin-bottom:12px">
@@ -56,7 +52,6 @@
 
                 <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
 
-                    <!-- LEWA: pola -->
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
 
                         <div>
@@ -123,7 +118,6 @@
                                  th:errors="*{product.description}"></div>
                         </div>
 
-                        <!-- Data dodania - tylko podgląd -->
                         <div style="grid-column:1 / -1">
                             <label class="form-label">Data dodania</label>
 
@@ -140,8 +134,6 @@
                         </div>
 
                     </div>
-
-                    <!-- PRAWA: zdjęcie -->
                     <section class="card product-photo-card"
                              style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
                         <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">

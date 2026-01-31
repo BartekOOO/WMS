@@ -14,7 +14,6 @@
 
         <div class="card-b">
 
-            <!-- Sukces -->
             <div class="alert-glass alert-glass--success" th:if="${success != null}">
                 <div class="alert-glass__icon">✓</div>
                 <div class="alert-glass__content">
@@ -23,7 +22,6 @@
                 </div>
             </div>
 
-            <!-- Błąd -->
             <div class="alert-glass alert-glass--danger" th:if="${error != null}">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
@@ -37,7 +35,6 @@
                   method="post"
                   style="display:grid;gap:14px">
 
-                <!-- CUSTOMER -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div>
                         <label class="form-label">Akronim</label>
@@ -83,7 +80,6 @@
 
                 <div style="height:18px"></div>
 
-                <!-- ADDRESS (główny) -->
                 <section class="card"
                          style="box-shadow:none;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03)">
                     <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">

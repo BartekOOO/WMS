@@ -44,13 +44,11 @@
 
         <div class="card-b">
 
-            <!-- komunikat błędu ogólnego -->
             <div class="alert alert-err" th:if="${error}">
                 <div class="alert-title">Nie udało się wykonać operacji</div>
                 <div class="alert-body" th:text="${error}">Błąd</div>
             </div>
 
-            <!-- PODGLĄD KONTRAHENTA (tylko do odczytu) -->
             <div class="subcard" th:if="${customer != null}">
                 <div class="subcard-title">Kontrahent</div>
 
@@ -78,10 +76,8 @@
                   th:object="${address}"
                   method="post">
 
-                <!-- przeniesienie customerId w commandzie -->
                 <input type="hidden" th:field="*{customerId}"/>
 
-                <!-- Jeśli kiedyś dodasz magazyn w UI, zostawiam pole: -->
                 <input type="hidden" th:field="*{warehouseId}"/>
 
                 <div class="grid-2">

@@ -21,6 +21,9 @@ public class RegisterWarehouseCommand {
 
     public RegisterWarehouseCommand() {
         this.warehouse = new Warehouse();
+        unloadingSector = new Sector();
+        loadingSector = new Sector();
+        sector = new Sector();
     }
 
     public RegisterWarehouseCommand configureWarehouse(Warehouse warehouse) {
