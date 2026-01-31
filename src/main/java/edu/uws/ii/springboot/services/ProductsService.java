@@ -22,6 +22,7 @@ import edu.uws.ii.springboot.repositories.IPropertiesRepository;
 import edu.uws.ii.springboot.repositories.IUnitsRepository;
 import edu.uws.ii.springboot.specifications.CustomerSpecifications;
 import edu.uws.ii.springboot.specifications.ProductSpecifications;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -49,9 +50,9 @@ public class ProductsService implements IProductsService {
     @Override
     @Transactional
     public Product registerProduct(RegisterProductCommand command) {
-        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt");
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
-        var product =command.getProduct();
+        var product = command.getProduct();
 
         if(product == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt");
@@ -96,6 +97,80 @@ public class ProductsService implements IProductsService {
     @Override
     @Transactional
     public void editProduct(EditProductCommand command) {
+
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        var sku = command.getSku();
+        var name = command.getName();
+        var unit = command.getUnit();
+        var ean = command.getEan();
+
+        if (sku.isBlank())
+            throw new IllegalArgumentException("Nie podano sku produktu");
+
+        if (name.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy produktu");
+
+        if (unit.isBlank())
+            throw new IllegalArgumentException("Nie podano jednostki podstawowej produktu");
+
+        if (ean.isBlank())
+            throw new IllegalArgumentException("Nie podano ean produktu");
+
+        var product = this.getProducts(new GetProductsCommand().whereIdEquals(command.getId())).getFirst();
+
+        if(product == null)
+            throw new EntityNotFoundException("Nie znaleziono produktu o podanym identyfikatorze");
+
+        if(sku != null) {
+            var skuExistsCommand = new GetProductsCommand();
+            skuExistsCommand.whereSkuEquals(sku).whereIsNotArchival();
+            var skuProduct = this.getProducts(skuExistsCommand).getFirst();
+            if (skuProduct != null && skuProduct.getId() != command.getId()) {
+                throw new IllegalArgumentException("Produkt o podanym sku już istnieje");
+            }
+            product.setSku(sku);
+        }
+
+        if(name != null) {
+            var nameExistsCommand = new GetProductsCommand();
+            nameExistsCommand.whereNameEquals(name).whereIsNotArchival();
+            var nameProduct = this.getProducts(nameExistsCommand).getFirst();
+            if (nameProduct != null && product.getId() != nameProduct.getId()) {
+                throw new IllegalArgumentException("Produkt o podanej nazwie już istnieje");
+            }
+            product.setName(name);
+        }
+
+        if(ean != null) {
+            var eanExistsCommand = new GetProductsCommand();
+            eanExistsCommand.whereEanEquals(ean).whereIsNotArchival();
+            var eanProduct = this.getProducts(eanExistsCommand).getFirst();
+            if (eanProduct != null && product.getId() != eanProduct.getId()) {
+                throw new IllegalArgumentException("Produkt o podanym ean już istnieje");
+            }
+            product.setEan(ean);
+        }
+
+        if(command.getBrand() != null)
+            product.setBrand(command.getBrand());
+
+        if(command.getDescription() != null)
+            product.setDescription(command.getDescription());
+
+        if(command.getUnit() != null)
+            product.setUnit(command.getUnit());
+
+        if(command.getPhotoContentType() != null)
+            product.setPhotoContentType(command.getPhotoContentType());
+
+        if(command.getPhotoContent() != null)
+            product.setPhotoContent(command.getPhotoContent());
+
+        if(command.getPhotoContent() != null)
+            product.setPhotoContent(command.getPhotoContent());
+
+        productsRepository.save(product);
 
     }
 
