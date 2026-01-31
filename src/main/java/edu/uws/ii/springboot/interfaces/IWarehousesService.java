@@ -1,6 +1,8 @@
 package edu.uws.ii.springboot.interfaces;
 
+import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
+import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
 
 import java.util.List;
@@ -12,5 +14,5 @@ public interface IWarehousesService {
     void assignEmployee(AssignEmployeeToWarehouse command);
     void unassignEmployee(UnassignEmployeeFromWarehouse command);
 
-    void RegisterSector(Regis);
+    Sector registerSector(RegisterSectorCommand command);
 }

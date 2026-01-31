@@ -2,16 +2,19 @@ package edu.uws.ii.springboot.services;
 
 import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
 import edu.uws.ii.springboot.repositories.IAddressesRepository;
 import edu.uws.ii.springboot.repositories.ICustomersRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +42,7 @@ public class WarehousesService implements IWarehousesService {
     }
 
     @Override
+    @Transactional
     public Warehouse registerWarehouse(RegisterWarehouseCommand command) {
         if (command == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
@@ -47,6 +51,9 @@ public class WarehousesService implements IWarehousesService {
 
         if(warehouse == null)
             throw new  IllegalArgumentException("Przekazano pusty obiekt magazynu");
+
+        if(command.getSector() == null || command.getLoadingSector() == null || command.getUnloadingSector() == null)
+            throw new  IllegalArgumentException("Nie przekazano danych odnośnie sektorów magazynu");
 
         var code = warehouse.getCode();
         var name = warehouse.getName();
@@ -86,21 +93,40 @@ public class WarehousesService implements IWarehousesService {
         }
 
         warehouse.setAddress(address);
+        warehouseRepository.save(warehouse);
 
+        var loadingSector = this.registerSector(new  RegisterSectorCommand().configureSector(command.getLoadingSector()).configureWarehouse(warehouse));
+        var unloadingSector = this.registerSector(new RegisterSectorCommand().configureSector(command.getUnloadingSector()).configureWarehouse(warehouse));
+        var sector = this.registerSector(new RegisterSectorCommand().configureSector(command.getSector()).configureWarehouse(warehouse));
+
+        warehouse.addSector(sector);
+        warehouse.addSector(loadingSector);
+        warehouse.addSector(unloadingSector);
+
+        return warehouseRepository.save(warehouse);
     }
 
     @Override
+    @Transactional
     public void editWarehouse(EditWarehouseCommand command) {
 
     }
 
     @Override
+    @Transactional
     public void assignEmployee(AssignEmployeeToWarehouse command) {
 
     }
 
     @Override
+    @Transactional
     public void unassignEmployee(UnassignEmployeeFromWarehouse command) {
 
+    }
+
+    @Override
+    @Transactional
+    public Sector registerSector(RegisterSectorCommand command) {
+        return null;
     }
 }

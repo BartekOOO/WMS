@@ -41,13 +41,21 @@ public class Warehouse implements Serializable {
     private Set<Employee> employees = new HashSet<>();
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sector> sectors = new ArrayList<>();
+    private List<Sector> sectors;
 
     @Column(name="IsArchival")
     private boolean isArchival;
 
 
     public Warehouse() {
+        sectors = new ArrayList<>();
+    }
 
+    public void addSector(Sector sector) {
+        this.sectors.add(sector);
+    }
+
+    public void removeSector(Sector sector) {
+        this.sectors.remove(sector);
     }
 }

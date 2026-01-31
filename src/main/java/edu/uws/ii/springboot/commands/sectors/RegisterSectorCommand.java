@@ -1,4 +1,4 @@
-package edu.uws.ii.springboot.commands.sector;
+package edu.uws.ii.springboot.commands.sectors;
 
 import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
