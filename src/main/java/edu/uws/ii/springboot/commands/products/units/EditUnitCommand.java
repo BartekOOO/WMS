@@ -9,12 +9,14 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class EditUnitCommand {
+    private Long id;
     private String unitName;
     private BigDecimal unitMultiplier;
 
     public EditUnitCommand(Unit unit){
         unitName = unit.getUnitName();
         unitMultiplier = unit.getMultiplier();
+        id = unit.getId();
     }
 
     public EditUnitCommand(){

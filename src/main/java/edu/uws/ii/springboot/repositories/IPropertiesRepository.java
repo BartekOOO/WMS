@@ -5,5 +5,5 @@ import edu.uws.ii.springboot.models.Property;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface IPropertiesRepository extends JpaRepository<Property, Integer>, JpaSpecificationExecutor<Property> {
+public interface IPropertiesRepository extends JpaRepository<Property, Long>, JpaSpecificationExecutor<Property> {
 }

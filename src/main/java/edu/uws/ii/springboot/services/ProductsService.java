@@ -9,9 +9,11 @@ import edu.uws.ii.springboot.commands.products.EditProductCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.RegisterProductCommand;
 import edu.uws.ii.springboot.commands.products.properties.EditPropertyCommand;
+import edu.uws.ii.springboot.commands.products.properties.GetPropertiesCommand;
 import edu.uws.ii.springboot.commands.products.properties.RegisterPropertyCommand;
 import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
 import edu.uws.ii.springboot.commands.products.units.EditUnitCommand;
+import edu.uws.ii.springboot.commands.products.units.GetUnitsCommand;
 import edu.uws.ii.springboot.commands.products.units.RegisterUnitCommand;
 import edu.uws.ii.springboot.interfaces.IProductsService;
 import edu.uws.ii.springboot.models.Product;
@@ -22,10 +24,13 @@ import edu.uws.ii.springboot.repositories.IPropertiesRepository;
 import edu.uws.ii.springboot.repositories.IUnitsRepository;
 import edu.uws.ii.springboot.specifications.CustomerSpecifications;
 import edu.uws.ii.springboot.specifications.ProductSpecifications;
+import edu.uws.ii.springboot.specifications.PropertySpecifications;
+import edu.uws.ii.springboot.specifications.UnitSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -55,7 +60,7 @@ public class ProductsService implements IProductsService {
         var product = command.getProduct();
 
         if(product == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt produktu");
 
         var sku = product.getSku();
         var name = product.getName();
@@ -89,9 +94,9 @@ public class ProductsService implements IProductsService {
         if(!(this.getProducts(eanExistsCommand).getFirst() == null))
             throw new IllegalArgumentException("Produkt o podanym ean już istnieje");
 
-        productsRepository.save(product);
+        var prod = productsRepository.save(product);
 
-        return product;
+        return prod;
     }
 
     @Override
@@ -116,6 +121,9 @@ public class ProductsService implements IProductsService {
 
         if (ean.isBlank())
             throw new IllegalArgumentException("Nie podano ean produktu");
+
+        if(command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora produktu");
 
         var product = this.getProducts(new GetProductsCommand().whereIdEquals(command.getId())).getFirst();
 
@@ -178,41 +186,188 @@ public class ProductsService implements IProductsService {
     @Transactional
     public void deleteProduct(DeleteProductCommand command) {
 
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        if (command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora produktu");
+
+        var product = this.getProducts(new GetProductsCommand().whereIdEquals(command.getId())).getFirst();
+
+        if (product == null)
+            throw new EntityNotFoundException("Nie znaleziono produktu o podanym identyfikatorze");
+
+        if (product.isArchival())
+            throw new IllegalArgumentException("Produkt został już zarchiwizowany");
+
+        product.setArchival(true);
+        productsRepository.save(product);
     }
 
     @Override
     @Transactional
     public void deleteUnit(DeleteUnitCommand command) {
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        if(command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora jednostki");
+
+        var unit = unitsRepository.getById(command.getId());
+
+        if(unit == null)
+            throw new EntityNotFoundException("Jednostka o podanym identyfikatorze nie istnieje");
+
+        unitsRepository.delete(unit);
     }
 
     @Override
     @Transactional
     public void editUnit(EditUnitCommand command) {
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        if(command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora właściwości");
+
+        if(command.getUnitName().isBlank())
+            throw new IllegalArgumentException("Nazwa jednostki nie może być pusta");
+
+        if(command.getUnitMultiplier() == BigDecimal.ZERO)
+            throw new IllegalArgumentException("Przelicznik jednostki nie może być zerowy");
+
+        if(command.getUnitMultiplier().signum() < 0)
+            throw new IllegalArgumentException("Przelicznik jednostki nie może być ujemny");
+
+        var unit = unitsRepository.getById(command.getId());
+
+        if(unit == null)
+            throw new EntityNotFoundException("Jednostka o podanym identyfikatorze nie istnieje");
+
+        if(command.getUnitName() == unit.getUnitName() && command.getUnitMultiplier() == unit.getMultiplier())
+            return;
+
+        var sameUnitCommand = new GetUnitsCommand().whereUnitNameEquals(command.getUnitName()).whereProductIdEquals(unit.getProduct().getId());
+        var sameUnit = unitsRepository.findAll(UnitSpecifications.byFilter(sameUnitCommand));
+
+        if(sameUnit != null)
+            throw new IllegalArgumentException("Jednostka o takiej nazwie już istnieje");
+
+        if(command.getUnitMultiplier() != null)
+            unit.setMultiplier(command.getUnitMultiplier());
+
+        if(command.getUnitName() != null)
+            unit.setUnitName(command.getUnitName());
+
+        unitsRepository.save(unit);
     }
 
     @Override
     @Transactional
     public Unit registerUnit(RegisterUnitCommand command) {
-        return null;
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        if(command.getUnit() == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt jednostki");
+
+        var unitName = command.getUnit().getUnitName();
+        var multiplierUnit = command.getUnit().getMultiplier();
+        var productId = command.getUnit().getProduct().getId();
+
+        if(unitName == null || unitName.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy jednostki");
+
+        if(productId == null || productId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora produktu");
+
+        var product =  this.getProducts(new GetProductsCommand().whereIdEquals(productId)).getFirst();
+        if(product == null)
+            throw new EntityNotFoundException("Produkt o podanym identyfikatorze nie istnieje");
+
+        var sameUnitCommand = new GetUnitsCommand().whereUnitNameEquals(unitName).whereProductIdEquals(productId);
+        var sameUnit = unitsRepository.findAll(UnitSpecifications.byFilter(sameUnitCommand));
+
+        if(sameUnit != null)
+            throw new IllegalArgumentException("Jednostka już istnieje");
+
+        var newUnit = command.getUnit();
+        newUnit.setProduct(product);
+
+        return  unitsRepository.save(newUnit);
     }
 
     @Override
     @Transactional
     public void deleteProperty(DeleteProductCommand command) {
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        if(command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora właściwości");
+
+        var property = propertiesRepository.getById(command.getId());
+
+        if(property == null)
+            throw new EntityNotFoundException("Właściwość o podanym identyfikatorze nie istnieje");
+
+        propertiesRepository.delete(property);
     }
 
     @Override
     @Transactional
     public void editProperty(EditPropertyCommand command) {
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        if(command.getId() == null || command.getId() == 0)
+            throw new IllegalArgumentException("Nie przekazano identyfikatora właściwości");
+
+        if(command.getPropertyName().isBlank())
+            throw new IllegalArgumentException("Nazwa właściwości nie może być pusta");
+
+        var property = propertiesRepository.getById(command.getId());
+
+        if(property == null)
+            throw new EntityNotFoundException("Właściwość o podanym identyfikatorze nie istnieje");
+
+        if(command.getPropertyName() == property.getPropertyName() || command.getPropertyName() == null)
+            return;
+
+        var samePropertyCommand = new GetPropertiesCommand().wherePropertyEquals(command.getPropertyName());
+        var sameProperty = propertiesRepository.findAll(PropertySpecifications.byFilter(samePropertyCommand));
+
+        if(sameProperty != null)
+            throw new IllegalArgumentException("Cecha o takiej nazwie już istnieje");
+
+        property.setPropertyName(command.getPropertyName());
+
+        propertiesRepository.save(property);
     }
 
     @Override
     @Transactional
     public Property registerProperty(RegisterPropertyCommand command) {
-        return null;
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        var property = command.getPropertyName();
+        var productId = command.getProductId();
+
+        if(property == null || property.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy cechy");
+
+        if(productId == null || productId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora produktu");
+
+        var product =  this.getProducts(new GetProductsCommand().whereIdEquals(productId)).getFirst();
+        if(product == null)
+            throw new EntityNotFoundException("Produkt o podanym identyfikatorze nie istnieje");
+
+        var samePropertyCommand = new GetPropertiesCommand().wherePropertyEquals(property).whereProductId(productId);
+        var sameProperty = propertiesRepository.findAll(PropertySpecifications.byFilter(samePropertyCommand));
+
+        if(sameProperty != null)
+            throw new IllegalArgumentException("Cecha już istnieje");
+
+        var newProperty = new Property();
+        newProperty.setPropertyName(property);
+        newProperty.setProduct(product);
+
+        var prop = propertiesRepository.save(newProperty);
+        return prop;
     }
 }
