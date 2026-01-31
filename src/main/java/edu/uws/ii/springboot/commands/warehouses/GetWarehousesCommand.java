@@ -7,4 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetWarehousesCommand {
+
+
+    public GetWarehousesCommand() {
+
+    }
 }

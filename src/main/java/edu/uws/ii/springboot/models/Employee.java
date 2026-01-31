@@ -48,10 +48,6 @@ public class Employee implements Serializable {
     )
     private Set<Warehouse> warehouses = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "CustomerId")
-    private Customer customer;
-
     @ManyToMany(mappedBy = "responsibleEmployees", fetch = FetchType.LAZY)
     private Set<Document> responsibleDocuments = new HashSet<>();
 

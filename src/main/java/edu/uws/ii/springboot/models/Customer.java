@@ -58,14 +58,6 @@ public class Customer extends AuditedEntity implements Serializable {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<Employee> employees;
-
-    @OneToMany(
-            mappedBy = "customer",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
     private List<Address> addresses;
 
     public Customer(){
