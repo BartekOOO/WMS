@@ -11,10 +11,12 @@ import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
 import edu.uws.ii.springboot.repositories.IAddressesRepository;
 import edu.uws.ii.springboot.repositories.ICustomersRepository;
+import edu.uws.ii.springboot.repositories.ISectorsRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.hibernate.sql.results.graph.entity.internal.BatchEntityInsideEmbeddableSelectFetchInitializer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,13 +27,15 @@ public class WarehousesService implements IWarehousesService {
     private final IWarehouseRepository warehouseRepository;
     private final IAddressesRepository addressesRepository;
     private final ICustomersRepository customersRepository;
+    private final ISectorsRepository sectorsRepository;
     private final IAddressesService addressesService;
 
-    public WarehousesService(IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersRepository customersRepository) {
+    public WarehousesService(ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersRepository customersRepository) {
         this.warehouseRepository = warehouseRepository;
         this.addressesService = addressesService;
         this.addressesRepository = addressesRepository;
         this.customersRepository = customersRepository;
+        this.sectorsRepository = sectorsRepository;
     }
 
     @Override
@@ -127,6 +131,37 @@ public class WarehousesService implements IWarehousesService {
     @Override
     @Transactional
     public Sector registerSector(RegisterSectorCommand command) {
-        return null;
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        var sector = command.getSector();
+
+        if(sector == null)
+            throw new  IllegalArgumentException("Przekazano pusty obiekt sektora");
+
+        if(command.getWarehouseId() == null)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
+
+        var type = sector.getType();
+        var name = sector.getName();
+        var code = sector.getCode();
+
+        if(type == null)
+            throw new IllegalArgumentException("Nie podano typu sektora");
+
+        if(name == null || name.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy magazynu");
+
+        if(code == null || code.isBlank())
+            throw new IllegalArgumentException("Nie podano kodu magazynu");
+
+        var warehouse = warehouseRepository.getById(command.getWarehouseId());
+        if(warehouse == null)
+            throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
+
+        var newSector = sectorsRepository.save(command.getSector());
+        newSector.setWarehouse(warehouse);
+
+        return sectorsRepository.save(newSector);
     }
 }

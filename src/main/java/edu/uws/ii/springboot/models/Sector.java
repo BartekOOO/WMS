@@ -32,6 +32,7 @@ public class Sector implements Serializable {
     private String name;
 
     @Column(name="Type")
+    @NotBlank
     @Enumerated(EnumType.STRING)
     private SectorTypeEnum type;
 }
