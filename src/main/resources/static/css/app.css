@@ -1230,3 +1230,90 @@ select.form-input.compact {
 }
 
 
+/* =========================
+   GLASS SELECT (dropdown)
+   ========================= */
+
+/* Sam select (zamknięty) */
+select.form-input,
+.form-input[type="select"] {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 100%;
+  cursor: pointer;
+
+  /* szkło */
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  color: rgba(255, 255, 255, 0.92);
+
+  /* miejsce na strzałkę */
+  padding-right: 44px;
+
+  /* strzałka (SVG w tle) */
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>\
+  <path fill='rgba(255,255,255,0.75)' d='M7 10l5 5 5-5z'/>\
+</svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px 18px;
+
+  /* żeby system nie robił jasnych kontrolek */
+  color-scheme: dark;
+}
+
+select.form-input:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+select.form-input:focus,
+select.form-input:focus-visible {
+  outline: none;
+  border-color: rgba(70, 220, 255, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(70, 220, 255, 0.18),
+    0 10px 30px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Disabled */
+select.form-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: none;
+}
+
+/* Placeholder (gdy masz opcję “— wybierz —”) */
+select.form-input option[value=""],
+select.form-input option:disabled {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Próba przyciemnienia menu opcji (działa różnie zależnie od OS/przeglądarki) */
+select.form-input option {
+  background: #0b1626;              /* ciemne tło listy */
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* W niektórych przeglądarkach da się podbić zaznaczenie */
+select.form-input option:checked {
+  background: #0f2238;
+}
+
+/* Fallback gdy brak backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  select.form-input {
+    background: rgba(20, 25, 35, 0.85);
+  }
+}

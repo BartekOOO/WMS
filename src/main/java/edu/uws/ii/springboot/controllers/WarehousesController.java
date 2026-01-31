@@ -9,9 +9,8 @@ import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/Warehouses")
@@ -73,5 +72,54 @@ public class WarehousesController {
 
         return "app";
     }
+
+    @PostMapping("/RegisterWarehouse")
+    public String RegisterWarehouse(
+            Model model,
+            RedirectAttributes ra,
+            @ModelAttribute RegisterWarehouseCommand command
+    ) {
+        try {
+            var result = warehousesService.registerWarehouse(command);
+
+            ra.addFlashAttribute("success",
+                    "Pomyślnie udało się dodać magazyn '" + result.getCode() + "'");
+
+            return "redirect:/Warehouses/EditForm?id=" + result.getId();
+
+        } catch (Exception ex) {
+
+            // error + widok
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("title", "WMS • Dodawanie magazynu");
+            model.addAttribute("content", "warehouses/addForm :: fragment");
+
+            // IMPORTANT: Address nie może być null, bo th:field *{address.street} może wywalić
+            if (command.getAddress() == null) {
+                command.configureAddress(new edu.uws.ii.springboot.models.Address());
+            }
+            model.addAttribute("command", command);
+
+            // Ponownie ładujemy listę adresów firmy (jak w GET AddForm)
+            var q = new edu.uws.ii.springboot.commands.customers.GetCustomersCommand()
+                    .whereIsMain(true)
+                    .whereIsNotArchival();
+
+            var companies = customersService.getCustomers(q);
+            var company = companies.isEmpty() ? null : companies.getFirst();
+
+            var addresses = (company == null || company.getAddresses() == null)
+                    ? java.util.List.<edu.uws.ii.springboot.models.Address>of()
+                    : company.getAddresses().stream()
+                    .filter(a -> a != null && !a.isArchival())
+                    .toList();
+
+            model.addAttribute("companyCustomer", company);
+            model.addAttribute("companyAddresses", addresses);
+
+            return "app";
+        }
+    }
+
 
 }
