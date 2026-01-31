@@ -65,9 +65,9 @@ public class ProductController {
             }
         }
 
-        if (sku != null && !sku.isBlank()) command.setSku(sku.trim());
-        if (name != null && !name.isBlank()) command.whereNameEquals(name.trim());
-        if (brand != null && !brand.isBlank()) command.whereBrandEquals(brand.trim());
+        if (sku != null && !sku.isBlank()) command.setSku(sku.trim() + "%");
+        if (name != null && !name.isBlank()) command.whereNameEquals("%" + name.trim() + "%");
+        if (brand != null && !brand.isBlank()) command.whereBrandEquals("%" + brand.trim() + "%");
         if (ean != null && !ean.isBlank()) command.whereEanEquals(ean.trim());
 
         model.addAttribute("products", productsService.getProducts(command));

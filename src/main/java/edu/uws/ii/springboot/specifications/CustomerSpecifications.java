@@ -15,12 +15,12 @@ public class CustomerSpecifications {
 
             if (c.getAcronym() != null && !c.getAcronym().isBlank()) {
                 String acr = c.getAcronym().trim().toLowerCase();
-                p = cb.and(p, cb.like(cb.lower(root.get("acronym")), acr + "%"));
+                p = cb.and(p, cb.like(cb.lower(root.get("acronym")), acr + ""));
             }
 
             if (c.getName() != null && !c.getName().isBlank()) {
                 p = cb.and(p, cb.like(cb.lower(root.get("fullName")),
-                        "%" + c.getName().toLowerCase() + "%"));
+                        "" + c.getName().toLowerCase() + ""));
             }
             if (c.getIsMain() != null) {
                 p = cb.and(p, cb.equal(root.get("isMain"), c.getIsMain()));

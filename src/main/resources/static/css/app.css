@@ -1182,3 +1182,49 @@ select.form-input.compact {
 }
 
 .field{ display:grid; gap:6px; }
+
+
+
+/* ===== Units table: lepsze szerokości + mniej pustego miejsca ===== */
+.units-table{
+  table-layout: fixed; /* stabilne kolumny */
+}
+
+.units-table th:nth-child(1), .units-table td:nth-child(1){ width: 22%; }
+.units-table th:nth-child(2), .units-table td:nth-child(2){ width: 16%; }
+.units-table th:nth-child(3), .units-table td:nth-child(3){ width: 40%; }
+.units-table th:nth-child(4), .units-table td:nth-child(4){ width: 22%; }
+
+.units-table td:nth-child(3){
+  color: rgba(255,255,255,0.85);
+}
+
+.unit-eq{
+  display:inline-block;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+
+/* Jednostki: przeliczenie w 2 liniach (w obie strony) */
+.unit-eq{
+  display:inline-grid;
+  gap:6px;
+  padding:10px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.10);
+  justify-items:start;         /* żeby nie było “na środku” */
+  max-width:100%;
+}
+
+.unit-eq__line{
+  font-weight:900;
+}
+
+.unit-eq__sub{
+  font-size:.92rem;
+  color: rgba(255,255,255,0.70);
+}

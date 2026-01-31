@@ -15,14 +15,14 @@ public class ProductSpecifications {
 
             if (c.getSku() != null && !c.getSku().isBlank()) {
                 String sku = c.getSku().trim().toLowerCase();
-                p = cb.and(p, cb.like(cb.lower(root.get("sku")), sku + "%"));
+                p = cb.and(p, cb.like(cb.lower(root.get("sku")), sku + ""));
             }
 
 
             if (c.getName() != null && !c.getName().isBlank()) {
                 p = cb.and(p, cb.like(
                         cb.lower(root.get("name")),
-                        "%" + c.getName().trim().toLowerCase() + "%"
+                        "" + c.getName().trim().toLowerCase() + ""
                 ));
             }
 
@@ -33,7 +33,7 @@ public class ProductSpecifications {
             if (c.getBrand() != null && !c.getBrand().isBlank()) {
                 p = cb.and(p, cb.like(
                         cb.lower(root.get("brand")),
-                        "%" + c.getBrand().trim().toLowerCase() + "%"
+                        "" + c.getBrand().trim().toLowerCase() + ""
                 ));
             }
 

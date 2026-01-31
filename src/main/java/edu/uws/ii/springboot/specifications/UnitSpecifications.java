@@ -20,7 +20,7 @@ public class UnitSpecifications {
             if (c.getUnitName() != null && !c.getUnitName().isBlank()) {
                 p = cb.and(p, cb.like(
                         cb.lower(root.get("unitName")),
-                        "%" + c.getUnitName().trim().toLowerCase() + "%"
+                        "" + c.getUnitName().trim().toLowerCase() + ""
                 ));
             }
 

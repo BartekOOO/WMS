@@ -20,7 +20,7 @@ public class PropertySpecifications {
             if (c.getPropertyName() != null && !c.getPropertyName().isBlank()) {
                 p = cb.and(p, cb.like(
                         cb.lower(root.get("propertyName")),
-                        "%" + c.getPropertyName().trim().toLowerCase() + "%"
+                        "" + c.getPropertyName().trim().toLowerCase() + ""
                 ));
             }
 

@@ -50,10 +50,10 @@ public class CustomersController {
         }
 
         if (acronym != null && !acronym.isBlank())
-            command.whereAcronymEquals(acronym.trim());
+            command.whereAcronymEquals(acronym.trim() + "%");
 
         if (name != null && !name.isBlank())
-            command.whereNameEquals(name.trim());
+            command.whereNameEquals("%" + name.trim() + "%");
 
         if (customerType != null)
             command.whereCustomerTypeEquals(Optional.of(customerType));
