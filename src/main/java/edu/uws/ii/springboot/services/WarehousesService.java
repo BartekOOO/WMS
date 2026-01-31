@@ -1,11 +1,15 @@
 package edu.uws.ii.springboot.services;
 
+import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
+import edu.uws.ii.springboot.models.Warehouse;
 import edu.uws.ii.springboot.repositories.IAddressesRepository;
 import edu.uws.ii.springboot.repositories.ICustomersRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class WarehousesService implements IWarehousesService {
@@ -20,9 +24,8 @@ public class WarehousesService implements IWarehousesService {
         this.customersRepository = customersRepository;
     }
 
-
-
-
-
-
+    @Override
+    public List<Warehouse> getWarehouses(GetWarehousesCommand command) {
+        return List.of();
+    }
 }

@@ -1,10 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div th:fragment="fragment" xmlns:th="http://www.w3.org/1999/xhtml">
 
-</body>
-</html>
+    <section class="card">
+        <header class="card-h">
+            <h2>Magazyny</h2>
+
+            <div class="card-actions">
+                <a class="chip" th:href="@{/Warehouses/AddForm}">Dodaj</a>
+
+                <!-- Toggle archiwalnych (zachowuje inne filtry) -->
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival == null}"
+                   th:href="@{/Warehouses/GetWarehouses(includeArchival=true,
+                           code=${param.code}, name=${param.name})}">
+                    Pokaż archiwalne
+                </a>
+
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival != null}"
+                   th:href="@{/Warehouses/GetWarehouses(code=${param.code}, name=${param.name})}">
+                    Ukryj archiwalne
+                </a>
+            </div>
+        </header>
+
+        <div class="card-b">
+            <div class="table-wrap">
+
+                <!-- PANEL FILTRÓW -->
+                <div class="filters" id="whFilters"
+                     th:classappend="${param.code != null || param.name != null || param.includeArchival != null ? ' open' : ''}">
+
+                    <button class="chip chip--filterToggle" type="button" onclick="toggleWhFilters()">
+                        🧰 Filtry
+                        <span class="filters__chev">▾</span>
+                    </button>
+
+                    <div class="filters__panel">
+                        <form method="get" th:action="@{/Warehouses/GetWarehouses}" class="filters__form">
+                            <div class="filters-grid">
+
+                                <div class="field">
+                                    <label class="form-label" for="fCode">Kod</label>
+                                    <input id="fCode" class="form-input mono" name="code"
+                                           placeholder="np. MAG-01"
+                                           th:value="${param.code != null ? param.code[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fName">Nazwa</label>
+                                    <input id="fName" class="form-input" name="name"
+                                           placeholder="np. Magazyn centralny"
+                                           th:value="${param.name != null ? param.name[0] : ''}"/>
+                                </div>
+
+                                <label class="switch">
+                                    <input type="checkbox" name="includeArchival" value="true"
+                                           th:checked="${param.includeArchival != null}"/>
+                                    <span class="switch-tx">Uwzględnij archiwalne</span>
+                                </label>
+
+                            </div>
+
+                            <div class="filters-actions">
+                                <button class="chip chip--filter" type="submit">🔎 Filtruj</button>
+                                <a class="chip chip--muted" th:href="@{/Warehouses/GetWarehouses}">Wyczyść</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- alerty -->
+                <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                    <div class="alert-glass__icon">✓</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Sukces</div>
+                        <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
+                    </div>
+                </div>
+
+                <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Błąd</div>
+                        <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd.</div>
+                    </div>
+                </div>
+
+                <table class="table table-click">
+                    <thead>
+                    <tr>
+                        <th class="mono" style="width:160px">Kod</th>
+                        <th>Magazyn</th>
+                        <th class="mono" style="width:140px">Sektory</th>
+                        <th class="mono" style="width:160px">Pracownicy</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="w : ${warehouses}" class="row-link">
+
+                        <td class="mono" th:text="${w.code}">MAG-01</td>
+
+                        <td class="cell-main">
+                            <a class="row-overlay"
+                               th:href="@{/Warehouses/EditForm(id=${w.id})}"
+                               aria-label="Otwórz magazyn"></a>
+
+                            <div class="title-row">
+                                <div class="main-title" th:text="${w.name}">Magazyn</div>
+                                <span class="tag tag--danger" th:if="${w.isArchival()}">Archiwalny</span>
+                            </div>
+
+                            <!-- “pod spodem” jak marka w produktach: tu adres -->
+                            <div class="main-sub"
+                                 th:text="${
+                                    w.address != null
+                                      ? (w.address.street + ', ' + w.address.zipCode + ' ' + w.address.city + ', ' + w.address.country)
+                                      : '— brak adresu —'
+                                 }">
+                                — brak adresu —
+                            </div>
+                        </td>
+
+                        <!-- Sektory: tylko liczba (nie robimy 200 kolumn) -->
+                        <td class="mono"
+                            th:text="${w.sectors != null ? #lists.size(w.sectors) : 0}">
+                            0
+                        </td>
+
+                        <!-- Pracownicy: liczba + mini “podgląd” max 2 nazwiska -->
+                        <td>
+                            <div class="mono" th:text="${w.employees != null ? #lists.size(w.employees) : 0}">0</div>
+                            <div class="main-sub"
+                                 th:text="${
+                                    w.employees != null && !#lists.isEmpty(w.employees)
+                                      ? (
+                                          #lists.size(w.employees) == 1
+                                            ? (w.employees[0].firstName + ' ' + w.employees[0].lastName)
+                                            : (
+                                                #lists.size(w.employees) == 2
+                                                  ? (w.employees[0].firstName + ' ' + w.employees[0].lastName + ', ' + w.employees[1].firstName + ' ' + w.employees[1].lastName)
+                                                  : (w.employees[0].firstName + ' ' + w.employees[0].lastName + ', ' + w.employees[1].firstName + ' ' + w.employees[1].lastName + ' + ' + (#lists.size(w.employees) - 2))
+                                              )
+                                        )
+                                      : '—'
+                                 }">
+                                —
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${warehouses == null || #lists.isEmpty(warehouses)}">
+                        <td colspan="4" style="padding:16px;color:rgba(255,255,255,0.65)">
+                            Brak magazynów.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleWhFilters(){
+            const root = document.getElementById('whFilters');
+            if(!root) return;
+            root.classList.toggle('open');
+            try {
+                localStorage.setItem('whFiltersOpen', root.classList.contains('open') ? '1' : '0');
+            } catch(e) {}
+        }
+
+        (function restoreWhFilters(){
+            const root = document.getElementById('whFilters');
+            if(!root) return;
+            try {
+                if(localStorage.getItem('whFiltersOpen') === '1') root.classList.add('open');
+            } catch(e) {}
+        })();
+    </script>
+
+</div>

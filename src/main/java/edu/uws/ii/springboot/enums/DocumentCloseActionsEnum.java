@@ -1,7 +1,10 @@
 package edu.uws.ii.springboot.enums;
 
 public enum DocumentCloseActionsEnum {
-    Delete("Usuń"), Approve("zatwierdź"), Cancell("Anuluj");
+    Delete("Usuń")
+    , Approve("Zatwierdź")
+    , Realize("Realizuj")
+    , Cancell("Anuluj");
 
     private final String description;
 

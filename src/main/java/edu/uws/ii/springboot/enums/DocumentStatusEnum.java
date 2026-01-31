@@ -1,7 +1,10 @@
 package edu.uws.ii.springboot.enums;
 
 public enum DocumentStatusEnum {
-    DRAFT("Szkic"), POSTED("Zatwierdzony"), CANCELLED("Anulowany");
+    DRAFT("Szkic"),
+    POSTED("Zatwierdzony"),
+    REALIZED("Zrealizowany"),
+    CANCELLED("Anulowany");
 
     private final String description;
 

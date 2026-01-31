@@ -8,5 +8,7 @@ import lombok.Setter;
 public class DeleteWarehouseCommand {
 
     public DeleteWarehouseCommand() {
+
+
     }
 }
