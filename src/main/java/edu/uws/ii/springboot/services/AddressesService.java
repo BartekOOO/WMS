@@ -32,7 +32,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public Address registerAddress(RegisterAddressCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         var addressToRegister = command.getAddress();
 
@@ -76,7 +76,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public void assignCustomer(AssignCustomerToAddressCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         if(command.getCustomerId() == null)
             throw new IllegalArgumentException("Nie podano identyfikatora kontrahenta");
@@ -107,7 +107,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public void assignWarehouse(AssignWarehouseToAddressCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         if(command.getWarehouseId() == null)
             throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
@@ -138,7 +138,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public void deleteAddress(DeleteAddressCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         if (command.getId() == null)
             throw new IllegalArgumentException("Nie podano identyfikatora adresu");
@@ -191,7 +191,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public Address editAddress(EditAddressCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         if (command.getStreet().isBlank())
             throw new IllegalArgumentException("Nie podano ulicy");
@@ -237,7 +237,7 @@ public class AddressesService implements IAddressesService {
     @Transactional
     public void setAddressAsMain(SetAddressAsMainCommand command) {
         if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt");
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         if (command.getAddressId() == null)
             throw new IllegalArgumentException("Nie podano identyfikatora adresu");

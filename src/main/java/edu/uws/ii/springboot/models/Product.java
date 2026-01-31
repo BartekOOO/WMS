@@ -42,6 +42,7 @@ public class Product implements Serializable {
     @Column(nullable = false, length = 16, name="Unit")
     private String unit;
 
+    @NotBlank
     @Column(length = 32,name="Ean")
     private String ean;
 

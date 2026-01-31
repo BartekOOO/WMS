@@ -33,7 +33,10 @@ public class CustomersService implements ICustomersService {
     @Override
     @Transactional
     public Customer registerCustomer(RegisterCustomerCommand command) {
-        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt");
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        if (command.getCustomer() == null) throw new IllegalArgumentException("Przekazano pusty obiekt kontrahenta");
+        if (command.getAddress() == null) throw new IllegalArgumentException("Przekazano pusty obiekt adresu");
 
         var acronym = command.getCustomer().getAcronym();
         var name = command.getCustomer().getFullName();
@@ -85,7 +88,7 @@ public class CustomersService implements ICustomersService {
     @Override
     @Transactional
     public void deleteCustomer(DeleteCustomerCommand command) {
-        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt");
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
         var id = command.getId();
 
         if (id == null || id <= 0)
@@ -108,7 +111,7 @@ public class CustomersService implements ICustomersService {
     @Override
     @Transactional
     public Customer editCustomer(EditCustomerCommand command) {
-        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt");
+        if (command == null) throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         var acronym = command.getAcronym();
         var name = command.getFullName();
