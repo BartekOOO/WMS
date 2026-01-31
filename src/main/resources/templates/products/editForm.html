@@ -8,7 +8,19 @@
             </div>
 
             <div class="card-actions">
-                <a class="chip" th:href="@{/Products/GetProducts}">Wróć</a>
+                <a class="chip" th:href="@{/Products/GetProducts?isArchival=false}">Wróć</a>
+
+                <span class="tag tag--danger"
+                      th:if="${product != null and (product.archival or product.isArchival)}">
+                    Archiwalny
+                </span>
+
+                <span class="tag tag--ok"
+                      th:if="${product != null and !(product.archival or product.isArchival)}">
+                    Aktywny
+                </span>
+
+
             </div>
         </header>
 
@@ -28,10 +40,11 @@
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
                     <div class="alert-glass__title">Nie udało się zapisać produktu</div>
-                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd.</div>
                 </div>
             </div>
 
+            <!-- FORM (EditProductCommand) -->
             <form th:object="${command}"
                   th:action="@{/Products/EditProduct}"
                   method="post"
@@ -42,33 +55,59 @@
 
                 <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
 
-                    <!-- LEWA: pola -->
+                    <!-- LEWA: pola produktu -->
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
 
                         <div>
                             <label class="form-label">SKU</label>
                             <input class="form-input mono" th:field="*{sku}" placeholder="np. SKU-001"/>
+                            <div class="form-err" th:if="${#fields.hasErrors('sku')}" th:errors="*{sku}"></div>
                         </div>
 
                         <div>
-                            <label class="form-label">Jednostka</label>
+                            <label class="form-label">Jednostka podstawowa</label>
                             <input class="form-input mono" th:field="*{unit}" placeholder="np. szt, kg, m"/>
+                            <div class="form-err" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}"></div>
                         </div>
 
-                        <div style="grid-column:1 / -1">
+                        <div style="grid-column:1/-1">
                             <label class="form-label">Nazwa</label>
                             <input class="form-input" th:field="*{name}" placeholder="Pełna nazwa produktu"/>
+                            <div class="form-err" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                         </div>
 
                         <div>
                             <label class="form-label">EAN</label>
-                            <input class="form-input mono" th:field="*{ean}" placeholder="opcjonalnie"/>
+                            <input class="form-input mono" th:field="*{ean}" placeholder="np. 590..."/>
+                            <div class="form-err" th:if="${#fields.hasErrors('ean')}" th:errors="*{ean}"></div>
                         </div>
 
                         <div>
-                            <label class="form-label">Cecha</label>
-                            <input class="form-input" th:field="*{feature}" placeholder="np. kolor / wariant"/>
+                            <label class="form-label">Marka</label>
+                            <input class="form-input" th:field="*{brand}" placeholder="np. Bosch"/>
+                            <div class="form-err" th:if="${#fields.hasErrors('brand')}" th:errors="*{brand}"></div>
                         </div>
+
+                        <div style="grid-column:1/-1">
+                            <label class="form-label">Opis</label>
+                            <textarea class="form-input"
+                                      th:field="*{description}"
+                                      style="min-height:140px;resize:vertical"
+                                      placeholder="Opis produktu (opcjonalnie)"></textarea>
+                            <div class="form-err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+
+                        <div style="grid-column:1/-1">
+                            <label class="form-label">Data dodania</label>
+                            <input class="form-input mono" type="text" readonly
+                                   th:value="${
+                                        product != null && product.createdAt != null
+                                        ? T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(product.createdAt)
+                                        : '—'
+                                   }"/>
+                            <div class="form-hint">Tylko podgląd.</div>
+                        </div>
+
                     </div>
 
                     <!-- PRAWA: zdjęcie -->
@@ -81,58 +120,284 @@
                         <div class="card-b">
                             <div class="photo-box">
 
-                                <!-- Aktualne -->
-                                <div class="photo-current" th:if="${product != null && product.photoName != null}">
+                                <div class="photo-current"
+                                     th:if="${product != null && product.photoContent != null && product.photoContent.length > 0}">
                                     <img class="photo-preview"
-                                         th:src="@{/Products/Photo(id=${product.id})}"
+                                         th:src="@{/Products/Photo(id=${product.id}, v=${product.id})}"
                                          alt="Aktualne zdjęcie"/>
                                     <div class="photo-meta">
-                                        <div class="mono" th:text="${product.photoName}">photo.jpg</div>
-                                        <div class="muted" th:text="${product.photoContentType}">image/jpeg</div>
+                                        <div class="mono" th:text="${product.photoName != null ? product.photoName : 'foto'}">foto</div>
+                                        <div class="muted" th:text="${product.photoContentType != null ? product.photoContentType : 'image/*'}">image/*</div>
                                     </div>
                                 </div>
 
-                                <div th:if="${product == null || product.photoName == null}" class="photo-placeholder">
+                                <div th:if="${product == null || product.photoContent == null || product.photoContent.length == 0}"
+                                     class="photo-placeholder">
                                     📷 Brak zdjęcia
                                 </div>
 
-                                <!-- Nowe -->
                                 <label class="chip" style="justify-self:start;cursor:pointer">
                                     Zmień zdjęcie
-                                    <input type="file" name="photo" accept="image/*" style="display:none" onchange="previewPhotoEdit(event)"/>
+                                    <input type="file" name="photo" accept="image/*"
+                                           style="display:none"
+                                           onchange="previewPhotoEdit(event)"/>
                                 </label>
 
-                                <img id="photoPreviewEdit" class="photo-preview" style="display:none;margin-top:10px" alt="Podgląd nowego zdjęcia"/>
+                                <img id="photoPreviewEdit"
+                                     class="photo-preview"
+                                     style="display:none;margin-top:10px"
+                                     alt="Podgląd nowego zdjęcia"/>
 
-                                <!-- Opcjonalnie: usuń zdjęcie (jeśli obsłużysz po backendzie) -->
-                                <label class="chip" style="justify-self:start;opacity:.9">
-                                    <input type="checkbox" name="removePhoto" value="1" style="margin-right:8px;transform:translateY(1px)"/>
-                                    Usuń zdjęcie
-                                </label>
-
-                                <div class="form-hint">
-                                    Jeśli wybierzesz nowe, backend powinien nadpisać <code>photoContent/photoName/photoContentType</code>.
-                                </div>
+                                <div class="form-hint">Po zapisie zdjęcie zostanie nadpisane.</div>
                             </div>
                         </div>
                     </section>
+
                 </div>
 
                 <div class="form-actions">
                     <a class="chip chip--danger"
-                       th:if="${product != null && product.id != null}"
+                       th:if="${product != null && product.id != null && !(product.archival or product.isArchival)}"
                        th:href="@{/Products/DeleteProduct(id=${product.id})}">
-                        🗑 Usuń
+                        🗑 Archiwizuj
                     </a>
 
-                    <button class="chip chip--save" type="submit">
+                    <span class="chip chip--muted"
+                          th:if="${product != null && (product.archival or product.isArchival)}"
+                          style="opacity:.9;cursor:default">
+                        Produkt archiwalny — edycja zablokowana
+                    </span>
+
+                    <button class="chip chip--save"
+                            type="submit"
+                            th:disabled="${product != null && (product.archival or product.isArchival)}"
+                            th:styleappend="${product != null && (product.archival or product.isArchival)} ? 'opacity:.55;cursor:not-allowed' : ''">
                         💾 Zapisz zmiany
                     </button>
                 </div>
 
+
             </form>
+
+            <div style="height:18px"></div>
+
+            <!-- JEDNOSTKI -->
+            <section id="units">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+                    <div style="font-weight:900">Jednostki</div>
+
+                    <button type="button" class="chip" onclick="openModal('unitAdd')">
+                        + Dodaj jednostkę
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Nazwa</th>
+                            <th class="mono">Przelicznik</th>
+                            <th style="text-align:right">Akcje</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="u : ${product != null ? product.units : null}">
+                            <td th:text="${u.unitName}">szt</td>
+                            <td class="mono" th:text="${u.multiplier}">1.000000</td>
+
+                            <td style="text-align:right;white-space:nowrap">
+                                <button type="button"
+                                        class="chip"
+                                        onclick="openUnitEdit(this)"
+                                        th:attr="data-id=${u.id},data-name=${u.unitName},data-mult=${u.multiplier}">
+                                    Edytuj
+                                </button>
+
+                                <a class="chip"
+                                   th:href="@{/Products/DeleteUnit(productId=${product.id}, id=${u.id})}"
+                                   onclick="return confirm('Usunąć jednostkę?')">
+                                    Usuń
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${product == null || product.units == null || #lists.isEmpty(product.units)}">
+                            <td colspan="3" style="padding:16px;color:rgba(255,255,255,0.65)">
+                                Brak jednostek.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div style="height:18px"></div>
+
+            <!-- CECHY -->
+            <section id="props">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+                    <div style="font-weight:900">Cechy</div>
+
+                    <button type="button" class="chip" onclick="openModal('propAdd')">
+                        + Dodaj cechę
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Nazwa cechy</th>
+                            <th style="text-align:right">Akcje</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="pr : ${product != null ? product.properties : null}">
+                            <td th:text="${pr.propertyName}">kolor</td>
+
+                            <td style="text-align:right;white-space:nowrap">
+                                <button type="button"
+                                        class="chip"
+                                        onclick="openPropEdit(this)"
+                                        th:attr="data-id=${pr.id},data-name=${pr.propertyName}">
+                                    Edytuj
+                                </button>
+
+                                <a class="chip"
+                                   th:href="@{/Products/DeleteProperty(productId=${product.id}, id=${pr.id})}"
+                                   onclick="return confirm('Usunąć cechę?')">
+                                    Usuń
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${product == null || product.properties == null || #lists.isEmpty(product.properties)}">
+                            <td colspan="2" style="padding:16px;color:rgba(255,255,255,0.65)">
+                                Brak cech.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
         </div>
     </section>
+
+    <!-- MODAL: DODAJ JEDNOSTKĘ -->
+    <div class="modal" id="unitAdd">
+        <div class="modal__backdrop" onclick="closeModal('unitAdd')"></div>
+        <div class="modal__dialog">
+            <div class="modal__head">
+                <div class="modal__title">Dodaj jednostkę</div>
+                <button type="button" class="chip chip--muted" onclick="closeModal('unitAdd')">✕</button>
+            </div>
+
+            <form method="post" th:action="@{/Products/RegisterUnit}" class="modal__body">
+                <input type="hidden" name="productId" th:value="${product != null ? product.id : 0}"/>
+
+                <div class="field">
+                    <label class="form-label">Nazwa</label>
+                    <input class="form-input" name="unitName" placeholder="np. opak / karton / paleta" required/>
+                </div>
+
+                <div class="field">
+                    <label class="form-label">Przelicznik</label>
+                    <input class="form-input mono" name="multiplier" placeholder="np. 1.0" value="1" required/>
+                    <div class="form-hint">Względem jednostki podstawowej.</div>
+                </div>
+
+                <div class="modal__actions">
+                    <button type="button" class="chip chip--muted" onclick="closeModal('unitAdd')">Anuluj</button>
+                    <button type="submit" class="chip chip--save">Dodaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDYTUJ JEDNOSTKĘ -->
+    <div class="modal" id="unitEdit">
+        <div class="modal__backdrop" onclick="closeModal('unitEdit')"></div>
+        <div class="modal__dialog">
+            <div class="modal__head">
+                <div class="modal__title">Edytuj jednostkę</div>
+                <button type="button" class="chip chip--muted" onclick="closeModal('unitEdit')">✕</button>
+            </div>
+
+            <form method="post" th:action="@{/Products/EditUnit}" class="modal__body">
+                <input type="hidden" name="productId" th:value="${product != null ? product.id : 0}"/>
+                <input type="hidden" name="id" id="unitEditId"/>
+
+                <div class="field">
+                    <label class="form-label">Nazwa</label>
+                    <input class="form-input" name="unitName" id="unitEditName" required/>
+                </div>
+
+                <div class="field">
+                    <label class="form-label">Przelicznik</label>
+                    <input class="form-input mono" name="multiplier" id="unitEditMult" required/>
+                </div>
+
+                <div class="modal__actions">
+                    <button type="button" class="chip chip--muted" onclick="closeModal('unitEdit')">Anuluj</button>
+                    <button type="submit" class="chip chip--save">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DODAJ CECHĘ -->
+    <div class="modal" id="propAdd">
+        <div class="modal__backdrop" onclick="closeModal('propAdd')"></div>
+        <div class="modal__dialog">
+            <div class="modal__head">
+                <div class="modal__title">Dodaj cechę</div>
+                <button type="button" class="chip chip--muted" onclick="closeModal('propAdd')">✕</button>
+            </div>
+
+            <form method="post" th:action="@{/Products/RegisterProperty}" class="modal__body">
+                <input type="hidden" name="productId" th:value="${product != null ? product.id : 0}"/>
+
+                <div class="field">
+                    <label class="form-label">Nazwa cechy</label>
+                    <input class="form-input" name="propertyName" placeholder="np. kolor / rozmiar / wariant" required/>
+                </div>
+
+                <div class="modal__actions">
+                    <button type="button" class="chip chip--muted" onclick="closeModal('propAdd')">Anuluj</button>
+                    <button type="submit" class="chip chip--save">Dodaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDYTUJ CECHĘ -->
+    <div class="modal" id="propEdit">
+        <div class="modal__backdrop" onclick="closeModal('propEdit')"></div>
+        <div class="modal__dialog">
+            <div class="modal__head">
+                <div class="modal__title">Edytuj cechę</div>
+                <button type="button" class="chip chip--muted" onclick="closeModal('propEdit')">✕</button>
+            </div>
+
+            <form method="post" th:action="@{/Products/EditProperty}" class="modal__body">
+                <input type="hidden" name="productId" th:value="${product != null ? product.id : 0}"/>
+                <input type="hidden" name="id" id="propEditId"/>
+
+                <div class="field">
+                    <label class="form-label">Nazwa cechy</label>
+                    <input class="form-input" name="propertyName" id="propEditName" required/>
+                </div>
+
+                <div class="modal__actions">
+                    <button type="button" class="chip chip--muted" onclick="closeModal('propEdit')">Anuluj</button>
+                    <button type="submit" class="chip chip--save">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         function previewPhotoEdit(e) {
@@ -141,6 +406,40 @@
             if (!file) { img.style.display='none'; return; }
             img.src = URL.createObjectURL(file);
             img.style.display = 'block';
+        }
+
+        function openModal(id){
+            const m = document.getElementById(id);
+            if(!m) return;
+            m.classList.add('open');
+        }
+
+        function closeModal(id){
+            const m = document.getElementById(id);
+            if(!m) return;
+            m.classList.remove('open');
+        }
+
+        function openUnitEdit(btn){
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const mult = btn.getAttribute('data-mult');
+
+            document.getElementById('unitEditId').value = id || '';
+            document.getElementById('unitEditName').value = name || '';
+            document.getElementById('unitEditMult').value = mult || '1';
+
+            openModal('unitEdit');
+        }
+
+        function openPropEdit(btn){
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+
+            document.getElementById('propEditId').value = id || '';
+            document.getElementById('propEditName').value = name || '';
+
+            openModal('propEdit');
         }
     </script>
 </div>

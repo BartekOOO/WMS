@@ -6,11 +6,82 @@
 
             <div class="card-actions">
                 <a class="chip" th:href="@{/Products/AddForm}">Dodaj</a>
+
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival == null}"
+                   th:href="@{/Products/GetProducts(includeArchival=true,
+            sku=${param.sku}, name=${param.name}, brand=${param.brand}, ean=${param.ean})}">
+                    Pokaż archiwalne
+                </a>
+
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival != null}"
+                   th:href="@{/Products/GetProducts(sku=${param.sku}, name=${param.name}, brand=${param.brand}, ean=${param.ean})}">
+                    Ukryj archiwalne
+                </a>
+
             </div>
         </header>
 
         <div class="card-b">
             <div class="table-wrap">
+
+                <!-- PANEL FILTRÓW -->
+                <div class="filters" id="prodFilters"
+                     th:classappend="${param.sku != null || param.name != null || param.brand != null || param.ean != null || param.includeArchival != null ? ' open' : ''}">
+
+                    <button class="chip chip--filterToggle" type="button" onclick="toggleProdFilters()">
+                        🧰 Filtry
+                        <span class="filters__chev">▾</span>
+                    </button>
+
+                    <div class="filters__panel">
+                        <form method="get" th:action="@{/Products/GetProducts}" class="filters__form">
+                            <div class="filters-grid">
+
+                                <div class="field">
+                                    <label class="form-label" for="fSku">SKU</label>
+                                    <input id="fSku" class="form-input mono" name="sku"
+                                           placeholder="np. SKU-001"
+                                           th:value="${param.sku != null ? param.sku[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fName">Nazwa</label>
+                                    <input id="fName" class="form-input" name="name"
+                                           placeholder="np. wiertarka"
+                                           th:value="${param.name != null ? param.name[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fBrand">Marka</label>
+                                    <input id="fBrand" class="form-input" name="brand"
+                                           placeholder="np. Bosch"
+                                           th:value="${param.brand != null ? param.brand[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fEan">EAN</label>
+                                    <input id="fEan" class="form-input mono" name="ean"
+                                           placeholder="np. 590..."
+                                           th:value="${param.ean != null ? param.ean[0] : ''}"/>
+                                </div>
+
+                                <label class="switch">
+                                    <input type="checkbox" name="includeArchival" value="true"
+                                           th:checked="${param.includeArchival != null}"/>
+                                    <span class="switch-tx">Uwzględnij archiwalne</span>
+                                </label>
+
+                            </div>
+
+                            <div class="filters-actions">
+                                <button class="chip chip--filter" type="submit">🔎 Filtruj</button>
+                                <a class="chip chip--muted" th:href="@{/Products/GetProducts}">Wyczyść</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Sukces -->
                 <div class="alert-glass alert-glass--success" th:if="${success != null}">
@@ -57,13 +128,19 @@
 
                         <td class="cell-main">
                             <a class="row-overlay" th:href="@{/Products/EditForm(id=${p.id})}" aria-label="Otwórz produkt"></a>
-                            <div class="main-title" th:text="${p.name}">Nazwa</div>
-                            <div class="main-sub" th:text="${p.brand != null && !#strings.isEmpty(p.brand) ? p.feature : '—'}">—</div>
+
+                            <div class="title-row">
+                                <div class="main-title" th:text="${p.name}">Nazwa</div>
+                                <span class="tag tag--danger" th:if="${p.isArchival()}">Archiwalny</span>
+                            </div>
+
+                            <div class="main-sub"
+                                 th:text="${p.brand != null && !#strings.isEmpty(p.brand) ? p.brand : '—'}">—</div>
                         </td>
 
                         <td class="mono" th:text="${p.unit}">szt</td>
                         <td class="mono" th:text="${p.ean != null ? p.ean : '—'}">—</td>
-                        <td th:text="${p.feature != null ? p.feature : '—'}">—</td>
+                        <td th:text="${p.brand != null ? p.brand : '—'}">—</td>
                     </tr>
 
                     <tr th:if="${products == null || #lists.isEmpty(products)}">
@@ -77,5 +154,24 @@
             </div>
         </div>
     </section>
+
+    <script>
+        function toggleProdFilters(){
+            const root = document.getElementById('prodFilters');
+            if(!root) return;
+            root.classList.toggle('open');
+            try {
+                localStorage.setItem('prodFiltersOpen', root.classList.contains('open') ? '1' : '0');
+            } catch(e) {}
+        }
+
+        (function restoreProdFilters(){
+            const root = document.getElementById('prodFilters');
+            if(!root) return;
+            try {
+                if(localStorage.getItem('prodFiltersOpen') === '1') root.classList.add('open');
+            } catch(e) {}
+        })();
+    </script>
 
 </div>

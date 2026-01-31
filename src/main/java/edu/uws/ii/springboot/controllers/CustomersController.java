@@ -4,6 +4,7 @@ import edu.uws.ii.springboot.commands.customers.DeleteCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.EditCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
 import edu.uws.ii.springboot.commands.customers.RegisterCustomerCommand;
+import edu.uws.ii.springboot.enums.CustomerTypeEnum;
 import edu.uws.ii.springboot.interfaces.ICustomersService;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Customer;
@@ -27,20 +28,40 @@ public class CustomersController {
 
 
     @GetMapping("/GetCustomers")
-    public String GetCustomers(Model model, Optional<Boolean> isArchival){
+    public String GetCustomers(
+            Model model,
+            @RequestParam(required = false) String acronym,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) CustomerTypeEnum customerType,
+            @RequestParam(defaultValue = "false") boolean includeArchival,
+            @RequestParam(required = false) Boolean isArchival
+    ) {
         model.addAttribute("title", "WMS • Kontrahenci");
         model.addAttribute("content", "customers/list :: fragment");
+        model.addAttribute("types", CustomerTypeEnum.values());
+
         var command = new GetCustomersCommand();
-        if(isArchival.isPresent()){
-            if(isArchival.get()){
-                command.whereIsArchival();
-            } else{
-                command.whereIsNotArchival();
-            }
+
+        if (isArchival != null) {
+            if (isArchival) command.whereIsArchival();
+            else command.whereIsNotArchival();
+        } else {
+            if (!includeArchival) command.whereIsNotArchival();
         }
+
+        if (acronym != null && !acronym.isBlank())
+            command.whereAcronymEquals(acronym.trim());
+
+        if (name != null && !name.isBlank())
+            command.whereNameEquals(name.trim());
+
+        if (customerType != null)
+            command.whereCustomerTypeEquals(Optional.of(customerType));
+
         model.addAttribute("customers", customersService.getCustomers(command));
         return "app";
     }
+
 
     @GetMapping("/AddForm")
     public String AddForm(Model model){

@@ -16,4 +16,8 @@ public class DeletePropertyCommand {
     public DeletePropertyCommand(Property property) {
         this.id = property.getId();
     }
+
+    public DeletePropertyCommand(Long id) {
+        this.id = id;
+    }
 }

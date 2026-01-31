@@ -2,21 +2,91 @@
     <section class="card">
         <header class="card-h">
             <h2>Kontrahenci</h2>
+
             <div class="card-actions">
                 <a class="chip" th:href="@{/Customers/AddForm}">Dodaj</a>
+
+                <!-- Toggle archiwalnych (zachowuje inne filtry) -->
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival == null}"
+                   th:href="@{/Customers/GetCustomers(includeArchival=true,
+                           acronym=${param.acronym}, name=${param.name}, customerType=${param.customerType})}">
+                    Pokaż archiwalne
+                </a>
+
+                <a class="chip chip--muted"
+                   th:if="${param.includeArchival != null}"
+                   th:href="@{/Customers/GetCustomers(acronym=${param.acronym},
+                           name=${param.name}, customerType=${param.customerType})}">
+                    Ukryj archiwalne
+                </a>
             </div>
         </header>
 
         <div class="card-b">
             <div class="table-wrap">
 
+                <!-- PANEL FILTRÓW -->
+                <div class="filters" id="custFilters"
+                     th:classappend="${param.acronym != null || param.name != null || param.customerType != null || param.includeArchival != null ? ' open' : ''}">
+
+                    <button class="chip chip--filterToggle" type="button" onclick="toggleCustFilters()">
+                        🧰 Filtry
+                        <span class="filters__chev">▾</span>
+                    </button>
+
+                    <div class="filters__panel">
+                        <form method="get" th:action="@{/Customers/GetCustomers}" class="filters__form">
+                            <div class="filters-grid">
+
+                                <div class="field">
+                                    <label class="form-label" for="fAcronym">Akronim</label>
+                                    <input id="fAcronym" class="form-input mono" name="acronym"
+                                           placeholder="np. ABC"
+                                           th:value="${param.acronym != null ? param.acronym[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fName">Nazwa</label>
+                                    <input id="fName" class="form-input" name="name"
+                                           placeholder="np. Firma XYZ"
+                                           th:value="${param.name != null ? param.name[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fType">Typ</label>
+                                    <select id="fType" class="form-input" name="customerType">
+                                        <option value="">— wszystkie —</option>
+                                        <option th:each="t : ${types}"
+                                                th:value="${t.name()}"
+                                                th:text="${t.description}"
+                                                th:selected="${param.customerType != null && param.customerType[0] == t.name()}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <label class="switch">
+                                    <input type="checkbox" name="includeArchival" value="true"
+                                           th:checked="${param.includeArchival != null}"/>
+                                    <span class="switch-tx">Uwzględnij archiwalne</span>
+                                </label>
+
+                            </div>
+
+                            <div class="filters-actions">
+                                <button class="chip chip--filter" type="submit">🔎 Filtruj</button>
+                                <a class="chip chip--muted" th:href="@{/Customers/GetCustomers}">Wyczyść</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- alerty -->
                 <div class="alert-glass alert-glass--success" th:if="${success != null}">
                     <div class="alert-glass__icon">✓</div>
                     <div class="alert-glass__content">
                         <div class="alert-glass__title">Sukces</div>
-                        <div class="alert-glass__msg" th:text="${success}">
-                            Operacja zakończona powodzeniem.
-                        </div>
+                        <div class="alert-glass__msg" th:text="${success}">Operacja zakończona powodzeniem.</div>
                     </div>
                 </div>
 
@@ -24,12 +94,9 @@
                     <div class="alert-glass__icon">!</div>
                     <div class="alert-glass__content">
                         <div class="alert-glass__title">Błąd</div>
-                        <div class="alert-glass__msg" th:text="${error}">
-                            Wystąpił błąd.
-                        </div>
+                        <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd.</div>
                     </div>
                 </div>
-
 
                 <table class="table table-click">
                     <thead>
@@ -48,17 +115,64 @@
 
                         <td class="cell-main">
                             <a class="row-overlay" th:href="@{/Customers/EditForm(id=${c.id})}" aria-label="Otwórz kontrahenta"></a>
-                            <div class="main-title" th:text="${c.fullName}">Nazwa</div>
+
+                            <div class="title-row">
+                                <div class="main-title" th:text="${c.fullName}">Nazwa</div>
+
+                                <span class="tag tag--danger" th:if="${c.isArchival()}">Archiwalny</span>
+                                <span class="tag tag--gold" th:if="${!c.isArchival() and c.isMain()}">GŁÓWNY</span>
+                            </div>
                         </td>
 
-                        <td th:text="${c.customerTypeLabel}">Dostawca</td>
-                        <td th:text="${c.mainAddressLine}">Adres</td>
+                        <!-- Typ jako tag po ENUMIE -->
+                        <td>
+                            <span class="tag"
+                                  th:classappend="${
+                                    c.customerType != null
+                                      ? (c.customerType.name() == 'Supplier'
+                                          ? ' tag--supplier'
+                                          : (c.customerType.name() == 'Receiver'
+                                              ? ' tag--receiver'
+                                              : ' tag--both'))
+                                      : ''
+                                  }"
+                                  th:text="${c.customerType != null ? c.customerType.description : '—'}">
+                                —
+                            </span>
+                        </td>
 
+                        <td th:text="${c.mainAddressLine}">Adres</td>
                         <td class="mono" th:text="${c.nip}">000</td>
+                    </tr>
+
+                    <tr th:if="${customers == null || #lists.isEmpty(customers)}">
+                        <td colspan="5" style="padding:16px;color:rgba(255,255,255,0.65)">
+                            Brak kontrahentów.
+                        </td>
                     </tr>
                     </tbody>
                 </table>
+
             </div>
         </div>
     </section>
+
+    <script>
+        function toggleCustFilters(){
+            const root = document.getElementById('custFilters');
+            if(!root) return;
+            root.classList.toggle('open');
+            try {
+                localStorage.setItem('custFiltersOpen', root.classList.contains('open') ? '1' : '0');
+            } catch(e) {}
+        }
+
+        (function restoreCustFilters(){
+            const root = document.getElementById('custFilters');
+            if(!root) return;
+            try {
+                if(localStorage.getItem('custFiltersOpen') === '1') root.classList.add('open');
+            } catch(e) {}
+        })();
+    </script>
 </div>

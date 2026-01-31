@@ -27,6 +27,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,6 +81,8 @@ public class ProductsService implements IProductsService {
         var eanExists = !this.getProducts(new GetProductsCommand().whereEanEquals(ean)).isEmpty();
         if (eanExists) throw new IllegalArgumentException("Produkt o podanym ean już istnieje");
 
+        product.setCreatedAt(LocalDateTime.now());
+
         return productsRepository.save(product);
     }
 
@@ -111,6 +114,9 @@ public class ProductsService implements IProductsService {
         if (product == null)
             throw new EntityNotFoundException("Nie znaleziono produktu o podanym identyfikatorze");
 
+        if(product.isArchival())
+            throw new EntityNotFoundException("Produkt został zarchiwizowany");
+
         if (sku != null) {
             var skuDup = this.getProducts(new GetProductsCommand().whereSkuEquals(sku).whereIsNotArchival())
                     .stream()
@@ -120,6 +126,16 @@ public class ProductsService implements IProductsService {
 
             if (skuDup != null)
                 throw new IllegalArgumentException("Produkt o podanym sku już istnieje");
+
+            if (command.getPhotoName() != null)
+                product.setPhotoName(command.getPhotoName());
+
+            if (command.getPhotoContentType() != null)
+                product.setPhotoContentType(command.getPhotoContentType());
+
+            if (command.getPhotoContent() != null)
+                product.setPhotoContent(command.getPhotoContent());
+
 
             product.setSku(sku);
         }
@@ -200,6 +216,9 @@ public class ProductsService implements IProductsService {
         if (unit == null)
             throw new EntityNotFoundException("Jednostka o podanym identyfikatorze nie istnieje");
 
+        if(unit.getProduct().isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
+
         unitsRepository.delete(unit);
     }
 
@@ -224,6 +243,9 @@ public class ProductsService implements IProductsService {
         var unit = unitsRepository.getById(command.getId());
         if (unit == null)
             throw new EntityNotFoundException("Jednostka o podanym identyfikatorze nie istnieje");
+
+        if(unit.getProduct().isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
 
         boolean nameUnchanged = (command.getUnitName() == null)
                 || Objects.equals(command.getUnitName(), unit.getUnitName());
@@ -288,6 +310,9 @@ public class ProductsService implements IProductsService {
         if (product == null)
             throw new EntityNotFoundException("Produkt o podanym identyfikatorze nie istnieje");
 
+        if(product.isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
+
         var sameUnitCommand = new GetUnitsCommand()
                 .whereUnitNameEquals(unitName)
                 .whereProductIdEquals(productId);
@@ -314,6 +339,9 @@ public class ProductsService implements IProductsService {
         if (property == null)
             throw new EntityNotFoundException("Właściwość o podanym identyfikatorze nie istnieje");
 
+        if(property.getProduct().isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
+
         propertiesRepository.delete(property);
     }
 
@@ -339,6 +367,11 @@ public class ProductsService implements IProductsService {
             return;
 
         var productId = property.getProduct() != null ? property.getProduct().getId() : null;
+
+        var product = productsRepository.getById(productId);
+
+        if(product.isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
 
         var samePropertyCommand = new GetPropertiesCommand()
                 .wherePropertyEquals(command.getPropertyName());
@@ -378,6 +411,9 @@ public class ProductsService implements IProductsService {
 
         if (product == null)
             throw new EntityNotFoundException("Produkt o podanym identyfikatorze nie istnieje");
+
+        if(product.isArchival())
+            throw new EntityNotFoundException("Operacja niemożliwa. Produkt został zarchiwizowany");
 
         var samePropertyCommand = new GetPropertiesCommand()
                 .wherePropertyEquals(propertyName)

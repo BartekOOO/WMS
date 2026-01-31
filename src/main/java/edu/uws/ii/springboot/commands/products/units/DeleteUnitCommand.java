@@ -13,6 +13,10 @@ public class DeleteUnitCommand {
         this.id = unit.getId();
     }
 
+    public DeleteUnitCommand(Long id){
+        this.id = id;
+    }
+
     public DeleteUnitCommand(){
 
     }

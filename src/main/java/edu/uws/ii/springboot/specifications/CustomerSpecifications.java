@@ -14,11 +14,11 @@ public class CustomerSpecifications {
             }
 
             if (c.getAcronym() != null && !c.getAcronym().isBlank()) {
-                p = cb.and(p, cb.equal(root.get("acronym"), c.getAcronym())); // albo "code" jeśli tak masz w encji
+                String acr = c.getAcronym().trim().toLowerCase();
+                p = cb.and(p, cb.like(cb.lower(root.get("acronym")), acr + "%"));
             }
 
             if (c.getName() != null && !c.getName().isBlank()) {
-                // zawiera (case-insensitive)
                 p = cb.and(p, cb.like(cb.lower(root.get("fullName")),
                         "%" + c.getName().toLowerCase() + "%"));
             }

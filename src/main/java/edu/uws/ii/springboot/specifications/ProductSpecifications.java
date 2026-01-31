@@ -14,8 +14,10 @@ public class ProductSpecifications {
             }
 
             if (c.getSku() != null && !c.getSku().isBlank()) {
-                p = cb.and(p, cb.equal(root.get("sku"), c.getSku().trim()));
+                String sku = c.getSku().trim().toLowerCase();
+                p = cb.and(p, cb.like(cb.lower(root.get("sku")), sku + "%"));
             }
+
 
             if (c.getName() != null && !c.getName().isBlank()) {
                 p = cb.and(p, cb.like(
