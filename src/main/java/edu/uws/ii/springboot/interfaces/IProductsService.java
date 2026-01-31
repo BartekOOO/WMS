@@ -4,6 +4,7 @@ import edu.uws.ii.springboot.commands.products.DeleteProductCommand;
 import edu.uws.ii.springboot.commands.products.EditProductCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.RegisterProductCommand;
+import edu.uws.ii.springboot.commands.products.properties.DeletePropertyCommand;
 import edu.uws.ii.springboot.commands.products.properties.EditPropertyCommand;
 import edu.uws.ii.springboot.commands.products.properties.RegisterPropertyCommand;
 import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
@@ -23,7 +24,7 @@ public interface IProductsService {
     void deleteUnit(DeleteUnitCommand command);
     void editUnit(EditUnitCommand command);
     Unit registerUnit(RegisterUnitCommand command);
-    void deleteProperty(DeleteProductCommand command);
+    void deleteProperty(DeletePropertyCommand command);
     void editProperty(EditPropertyCommand command);
     Property registerProperty(RegisterPropertyCommand command);
 }
