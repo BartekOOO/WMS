@@ -52,6 +52,10 @@ public class Employee implements Serializable {
     @JoinColumn(name = "CustomerId")
     private Customer customer;
 
+    @ManyToMany(mappedBy = "responsibleEmployees", fetch = FetchType.LAZY)
+    private Set<Document> responsibleDocuments = new HashSet<>();
+
+
     public Employee(String firstName, String lastName, String email, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;

@@ -138,9 +138,32 @@ public class Document implements Serializable {
                 type.getDescription(), number, month, year);
     }
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "DocumentEmployees",
+            joinColumns = @JoinColumn(name = "DocumentId"),
+            inverseJoinColumns = @JoinColumn(name = "EmployeeId")
+    )
+    private List<Employee> responsibleEmployees;
+
+
 
     //Zdefiniowane w https://docs.google.com/spreadsheets/d/1WWJqY0cP2U-fVBTSG3p0j_6xCXJQunrlI6akWA_h2JM/edit?gid=0#gid=0
     public Document() {
 
     }
+
+
+    public void assignEmployee(Employee e) {
+        if (e == null) return;
+        responsibleEmployees.add(e);
+        e.getResponsibleDocuments().add(this);
+    }
+
+    public void unassignEmployee(Employee e) {
+        if (e == null) return;
+        responsibleEmployees.remove(e);
+        e.getResponsibleDocuments().remove(this);
+    }
+
 }
