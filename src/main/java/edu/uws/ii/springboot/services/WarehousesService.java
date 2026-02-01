@@ -16,6 +16,7 @@ import edu.uws.ii.springboot.repositories.IAddressesRepository;
 import edu.uws.ii.springboot.repositories.ICustomersRepository;
 import edu.uws.ii.springboot.repositories.ISectorsRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
+import edu.uws.ii.springboot.specifications.SectorSpecifications;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -181,7 +182,9 @@ public class WarehousesService implements IWarehousesService {
 
     @Override
     public List<Sector> getSectors(GetSectorsCommand command) {
-        return List.of();
+        if(command == null)
+            command = new GetSectorsCommand();
+        return sectorsRepository.findAll(SectorSpecifications.byFilter(command));
     }
 
 }

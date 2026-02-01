@@ -16,17 +16,14 @@ public class AddressSpecifications {
                 p = cb.and(p, cb.equal(root.get("id"), c.getId()));
             }
 
-            // customerId -> Address.customer.id
             if (c.getCustomerId() != null) {
                 p = cb.and(p, cb.equal(root.get("customer").get("id"), c.getCustomerId()));
             }
 
-            // warehouseId -> Address.warehouse.id
             if (c.getWarehouseId() != null) {
                 p = cb.and(p, cb.equal(root.get("warehouse").get("id"), c.getWarehouseId()));
             }
 
-            // IsMain -> Address.isMainAddress
             if (c.getIsMain() != null) {
                 p = cb.and(p, cb.equal(root.get("isMainAddress"), c.getIsMain()));
             }
