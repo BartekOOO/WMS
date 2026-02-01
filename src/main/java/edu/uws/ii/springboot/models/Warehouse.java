@@ -70,7 +70,7 @@ public class Warehouse implements Serializable {
 
     public Sector getUnloadingHub(){
         for(Sector s: sectors){
-            if(s.getType() == SectorTypeEnum.LoadingHub)
+            if(s.getType() == SectorTypeEnum.UnloadingHub)
                 return s;
         }
         return null;

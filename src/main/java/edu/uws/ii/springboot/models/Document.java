@@ -4,6 +4,7 @@ package edu.uws.ii.springboot.models;
 import edu.uws.ii.springboot.enums.DocumentStatusEnum;
 import edu.uws.ii.springboot.enums.DocumentTypeEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ public class Document implements Serializable {
     private Integer number;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     @Column(nullable = false, length = 8, name="DocumentType")
     private DocumentTypeEnum type;
 

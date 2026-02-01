@@ -1,6 +1,7 @@
 package edu.uws.ii.springboot.commands.warehouses;
 
 
+import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Employee;
 import edu.uws.ii.springboot.models.Sector;
@@ -24,6 +25,9 @@ public class RegisterWarehouseCommand {
         unloadingSector = new Sector();
         loadingSector = new Sector();
         sector = new Sector();
+        sector.setType(SectorTypeEnum.Normal);
+        loadingSector.setType(SectorTypeEnum.LoadingHub);
+        unloadingSector.setType(SectorTypeEnum.UnloadingHub);
     }
 
     public RegisterWarehouseCommand configureWarehouse(Warehouse warehouse) {
