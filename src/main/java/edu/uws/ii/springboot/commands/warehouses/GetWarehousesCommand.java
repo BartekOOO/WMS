@@ -12,6 +12,7 @@ public class GetWarehousesCommand {
     private String code;
     private String name;
     private Boolean isArchival;
+    private Long addressId;
 
     public GetWarehousesCommand() {
 
@@ -42,5 +43,9 @@ public class GetWarehousesCommand {
         return this;
     }
 
+    public GetWarehousesCommand whereAddressIdEquals(Long id) {
+        this.addressId = id;
+        return this;
+    }
 
 }

@@ -2,10 +2,12 @@ package edu.uws.ii.springboot.services;
 
 import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.sectors.GetSectorsCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
+import edu.uws.ii.springboot.interfaces.ICustomersService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Sector;
@@ -29,13 +31,15 @@ public class WarehousesService implements IWarehousesService {
     private final IAddressesRepository addressesRepository;
     private final ICustomersRepository customersRepository;
     private final ISectorsRepository sectorsRepository;
+    private final ICustomersService  customersService;
     private final IAddressesService addressesService;
 
-    public WarehousesService(ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersRepository customersRepository) {
+    public WarehousesService(ICustomersService customersService, ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersRepository customersRepository) {
         this.warehouseRepository = warehouseRepository;
         this.addressesService = addressesService;
         this.addressesRepository = addressesRepository;
         this.customersRepository = customersRepository;
+        this.customersService = customersService;
         this.sectorsRepository = sectorsRepository;
     }
 
@@ -79,11 +83,7 @@ public class WarehousesService implements IWarehousesService {
             throw new IllegalArgumentException("Nie udało się powiązać adresu z magazynem");
 
         var address = new Address();
-        if(command.getAddress() != null){
-            var newAddressCommand = new RegisterAddressCommand();
-            newAddressCommand.configureAddress(command.getAddress());
-            address = addressesService.registerAddress(newAddressCommand);
-        } else {
+        if(command.getAddressId() != null && command.getAddressId() != 0){
             var customerAddress = addressesRepository.getById(command.getAddressId());
             if(customerAddress == null)
                 throw new EntityNotFoundException("Nie istnieje adres o takim identyfikatorze");
@@ -91,11 +91,18 @@ public class WarehousesService implements IWarehousesService {
             if(!customerAddress.getCustomer().isMain())
                 throw new IllegalArgumentException("Ten adres nie należy do kontrahenta reprezentujacego firmę");
 
-            if(customerAddress.getWarehouse() != null)
-                throw new IllegalArgumentException("Do adresu '" + customerAddress.getStreet() + "' został już przypisane magazyn");
+            if(!(this.getWarehouses(new GetWarehousesCommand().whereAddressIdEquals(command.getAddressId()))).isEmpty())
+                throw new IllegalArgumentException("Do tego adresu został już przypisany magazyn");
 
             address = customerAddress;
+        } else {
+            var newAddressCommand = new RegisterAddressCommand();
+            newAddressCommand.configureAddress(command.getAddress());
+            var mainCustomer = customersService.getCustomers(new GetCustomersCommand().whereIsMain(true)).getFirst();
+            newAddressCommand.configureCustomer(mainCustomer);
+            address = addressesService.registerAddress(newAddressCommand);
         }
+
 
         warehouse.setAddress(address);
         warehouseRepository.save(warehouse);
@@ -136,39 +143,45 @@ public class WarehousesService implements IWarehousesService {
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
         var sector = command.getSector();
+        if (sector == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt sektora");
 
-        if(sector == null)
-            throw new  IllegalArgumentException("Przekazano pusty obiekt sektora");
-
-        if(command.getWarehouseId() == null)
+        if (command.getWarehouseId() == null)
             throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
 
         var type = sector.getType();
         var name = sector.getName();
         var code = sector.getCode();
 
-        if(type == null)
+        if (type == null)
             throw new IllegalArgumentException("Nie podano typu sektora");
-
-        if(name == null || name.isBlank())
-            throw new IllegalArgumentException("Nie podano nazwy magazynu");
-
-        if(code == null || code.isBlank())
-            throw new IllegalArgumentException("Nie podano kodu magazynu");
+        if (name == null || name.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy sektora");
+        if (code == null || code.isBlank())
+            throw new IllegalArgumentException("Nie podano kodu sektora");
 
         var warehouse = warehouseRepository.getById(command.getWarehouseId());
-        if(warehouse == null)
-            throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
 
-        if(command.getSector().getType() == SectorTypeEnum.LoadingHub && warehouse.getLoadingHub() != null)
-            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada zdefiniowany sektor załadunkowy");
+        if (type == SectorTypeEnum.LoadingHub && warehouse.getLoadingHub() != null)
+            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada sektor załadunkowy");
 
-        if(command.getSector().getType() == SectorTypeEnum.UnloadingHub && warehouse.getUnloadingHub() != null)
-            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada zdefiniowany sektor rozładunkowy");
+        if (type == SectorTypeEnum.UnloadingHub && warehouse.getUnloadingHub() != null)
+            throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada sektor rozładunkowy");
 
-        var newSector = sectorsRepository.save(command.getSector());
-        newSector.setWarehouse(warehouse);
+        var cmd = new GetSectorsCommand().whereCodeEquals(code);
+        var usedCode = this.getSectors(cmd).isEmpty();
 
-        return sectorsRepository.save(newSector);
+        if(!usedCode)
+            throw new IllegalStateException("Istnieje już sektor z takim kodem");
+
+        sector.setWarehouse(warehouse);
+
+        return sectorsRepository.save(sector);
     }
+
+    @Override
+    public List<Sector> getSectors(GetSectorsCommand command) {
+        return List.of();
+    }
+
 }

@@ -8,7 +8,6 @@ import java.util.List;
 public interface IAddressesService {
     Address registerAddress(RegisterAddressCommand command);
     void assignCustomer(AssignCustomerToAddressCommand command);
-    void assignWarehouse(AssignWarehouseToAddressCommand command);
     void deleteAddress(DeleteAddressCommand command);
     List<Address> getAddresses(GetAddressesCommand command);
     Address editAddress(EditAddressCommand command);

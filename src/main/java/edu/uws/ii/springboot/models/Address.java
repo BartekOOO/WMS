@@ -41,10 +41,6 @@ public class Address implements Serializable {
     @JoinColumn(name = "CustomerId")
     private Customer customer;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "WarehouseId")
-    private Warehouse warehouse;
-
     @Column(name = "IsMainAddress")
     private boolean isMainAddress;
 

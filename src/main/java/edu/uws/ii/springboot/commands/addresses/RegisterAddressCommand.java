@@ -11,7 +11,6 @@ import lombok.Setter;
 public class RegisterAddressCommand {
     private Address address;
     private Long customerId;
-    private Long warehouseId;
 
     public RegisterAddressCommand() {
         this.address = new Address();
@@ -27,18 +26,10 @@ public class RegisterAddressCommand {
         return this;
     }
 
-    public  RegisterAddressCommand configureWarehouse(long warehouseId){
-        this.warehouseId = warehouseId;
-        return this;
-    }
 
     public RegisterAddressCommand configureCustomer(Customer customer){
         this.customerId = customer.getId();
         return this;
     }
 
-    public  RegisterAddressCommand configureWarehouse(Warehouse warehouse){
-        this.warehouseId = warehouse.getId();
-        return this;
-    }
 }

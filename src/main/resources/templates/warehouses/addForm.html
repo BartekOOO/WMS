@@ -22,7 +22,6 @@
                 </div>
             </div>
 
-
             <div class="alert-glass alert-glass--danger" th:if="${error != null}">
                 <div class="alert-glass__icon">!</div>
                 <div class="alert-glass__content">
@@ -43,7 +42,9 @@
                                th:field="*{warehouse.code}"
                                placeholder="np. MAG-01"
                                required/>
-                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.code')}" th:errors="*{warehouse.code}"></div>
+                        <div class="form-err"
+                             th:if="${#fields.hasErrors('warehouse.code')}"
+                             th:errors="*{warehouse.code}"></div>
                     </div>
 
                     <div>
@@ -52,7 +53,9 @@
                                th:field="*{warehouse.name}"
                                placeholder="np. Magazyn centralny"
                                required/>
-                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.name')}" th:errors="*{warehouse.name}"></div>
+                        <div class="form-err"
+                             th:if="${#fields.hasErrors('warehouse.name')}"
+                             th:errors="*{warehouse.name}"></div>
                     </div>
 
                     <div style="grid-column:1 / -1">
@@ -61,7 +64,9 @@
                                   th:field="*{warehouse.description}"
                                   style="min-height:120px;resize:vertical"
                                   placeholder="Krótki opis magazynu..."></textarea>
-                        <div class="form-err" th:if="${#fields.hasErrors('warehouse.description')}" th:errors="*{warehouse.description}"></div>
+                        <div class="form-err"
+                             th:if="${#fields.hasErrors('warehouse.description')}"
+                             th:errors="*{warehouse.description}"></div>
                     </div>
                 </div>
 
@@ -91,6 +96,7 @@
 
                         <div id="addrPick"
                              th:style="${command.addressId != null ? '' : 'display:none'}">
+
                             <label class="form-label">Adres firmy</label>
 
                             <select class="form-input"
@@ -103,7 +109,9 @@
                                 </option>
                             </select>
 
-                            <div class="form-err" th:if="${#fields.hasErrors('addressId')}" th:errors="*{addressId}"></div>
+                            <div class="form-err"
+                                 th:if="${#fields.hasErrors('addressId')}"
+                                 th:errors="*{addressId}"></div>
 
                             <div class="form-hint"
                                  th:text="${companyCustomer != null ? 'Źródło: ' + companyCustomer.acronym + ' • ' + companyCustomer.fullName : 'Brak skonfigurowanego kontrahenta firmowego / brak adresów.'}">
@@ -122,7 +130,9 @@
                                            th:field="*{address.street}"
                                            placeholder="Ulica, nr..."
                                            required/>
-                                    <div class="form-err" th:if="${#fields.hasErrors('address.street')}" th:errors="*{address.street}"></div>
+                                    <div class="form-err"
+                                         th:if="${#fields.hasErrors('address.street')}"
+                                         th:errors="*{address.street}"></div>
                                 </div>
 
                                 <div>
@@ -132,7 +142,9 @@
                                            th:field="*{address.zipCode}"
                                            placeholder="00-000"
                                            required/>
-                                    <div class="form-err" th:if="${#fields.hasErrors('address.zipCode')}" th:errors="*{address.zipCode}"></div>
+                                    <div class="form-err"
+                                         th:if="${#fields.hasErrors('address.zipCode')}"
+                                         th:errors="*{address.zipCode}"></div>
                                 </div>
 
                                 <div>
@@ -142,7 +154,9 @@
                                            th:field="*{address.city}"
                                            placeholder="Miasto"
                                            required/>
-                                    <div class="form-err" th:if="${#fields.hasErrors('address.city')}" th:errors="*{address.city}"></div>
+                                    <div class="form-err"
+                                         th:if="${#fields.hasErrors('address.city')}"
+                                         th:errors="*{address.city}"></div>
                                 </div>
 
                                 <div>
@@ -151,7 +165,9 @@
                                            id="addrState"
                                            th:field="*{address.state}"
                                            placeholder="np. Mazowieckie"/>
-                                    <div class="form-err" th:if="${#fields.hasErrors('address.state')}" th:errors="*{address.state}"></div>
+                                    <div class="form-err"
+                                         th:if="${#fields.hasErrors('address.state')}"
+                                         th:errors="*{address.state}"></div>
                                 </div>
 
                                 <div style="grid-column:1 / -1">
@@ -161,7 +177,9 @@
                                            th:field="*{address.country}"
                                            placeholder="PL"
                                            required/>
-                                    <div class="form-err" th:if="${#fields.hasErrors('address.country')}" th:errors="*{address.country}"></div>
+                                    <div class="form-err"
+                                         th:if="${#fields.hasErrors('address.country')}"
+                                         th:errors="*{address.country}"></div>
                                 </div>
                             </div>
 
@@ -176,15 +194,11 @@
                     <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
                         <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                             <h2 style="font-size:1.05rem">Sektor załadunkowy</h2>
-                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">
-                                Wymagany • dokładnie jeden
-                            </div>
+                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">Wymagany • dokładnie jeden</div>
                         </div>
                     </header>
 
                     <div class="card-b">
-                        <input type="hidden" th:name="loadingSector.type"
-                               th:value="${command.loadingSector != null && command.loadingSector.type != null ? command.loadingSector.type : 'LOADING'}"/>
 
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                             <div>
@@ -193,7 +207,9 @@
                                        th:field="*{loadingSector.code}"
                                        placeholder="np. ZAL-01"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('loadingSector.code')}" th:errors="*{loadingSector.code}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('loadingSector.code')}"
+                                     th:errors="*{loadingSector.code}"></div>
                             </div>
 
                             <div>
@@ -202,13 +218,12 @@
                                        th:field="*{loadingSector.name}"
                                        placeholder="np. Strefa załadunku"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('loadingSector.name')}" th:errors="*{loadingSector.name}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('loadingSector.name')}"
+                                     th:errors="*{loadingSector.name}"></div>
                             </div>
                         </div>
 
-                        <div class="form-hint" style="margin-top:10px">
-                            Kod sektora jest unikalny w ramach magazynu.
-                        </div>
                     </div>
                 </section>
 
@@ -217,15 +232,11 @@
                     <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
                         <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                             <h2 style="font-size:1.05rem">Sektor rozładunkowy</h2>
-                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">
-                                Wymagany • dokładnie jeden
-                            </div>
+                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">Wymagany • dokładnie jeden</div>
                         </div>
                     </header>
 
                     <div class="card-b">
-                        <input type="hidden" th:name="unloadingSector.type"
-                               th:value="${command.unloadingSector != null && command.unloadingSector.type != null ? command.unloadingSector.type : 'UNLOADING'}"/>
 
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                             <div>
@@ -234,7 +245,9 @@
                                        th:field="*{unloadingSector.code}"
                                        placeholder="np. ROZ-01"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('unloadingSector.code')}" th:errors="*{unloadingSector.code}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('unloadingSector.code')}"
+                                     th:errors="*{unloadingSector.code}"></div>
                             </div>
 
                             <div>
@@ -243,7 +256,9 @@
                                        th:field="*{unloadingSector.name}"
                                        placeholder="np. Strefa rozładunku"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('unloadingSector.name')}" th:errors="*{unloadingSector.name}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('unloadingSector.name')}"
+                                     th:errors="*{unloadingSector.name}"></div>
                             </div>
                         </div>
 
@@ -258,15 +273,11 @@
                     <header class="card-h" style="border-bottom:1px solid rgba(255,255,255,0.08)">
                         <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                             <h2 style="font-size:1.05rem">Sektor zwykły</h2>
-                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">
-                                Wymagany • dokładnie jeden
-                            </div>
+                            <div style="color:rgba(255,255,255,0.65);font-size:.90rem">Wymagany • dokładnie jeden</div>
                         </div>
                     </header>
 
                     <div class="card-b">
-                        <input type="hidden" th:name="sector.type"
-                               th:value="${command.sector != null && command.sector.type != null ? command.sector.type : 'NORMAL'}"/>
 
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                             <div>
@@ -275,7 +286,9 @@
                                        th:field="*{sector.code}"
                                        placeholder="np. S-01"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('sector.code')}" th:errors="*{sector.code}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('sector.code')}"
+                                     th:errors="*{sector.code}"></div>
                             </div>
 
                             <div>
@@ -284,7 +297,9 @@
                                        th:field="*{sector.name}"
                                        placeholder="np. Składowanie"
                                        required/>
-                                <div class="form-err" th:if="${#fields.hasErrors('sector.name')}" th:errors="*{sector.name}"></div>
+                                <div class="form-err"
+                                     th:if="${#fields.hasErrors('sector.name')}"
+                                     th:errors="*{sector.name}"></div>
                             </div>
                         </div>
 

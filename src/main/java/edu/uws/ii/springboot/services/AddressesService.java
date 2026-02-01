@@ -60,13 +60,6 @@ public class AddressesService implements IAddressesService {
             this.assignCustomer(assignCustomerToAddress);
         }
 
-        if(command.getWarehouseId() != null){
-            var assignWarehouseToAddress = new AssignWarehouseToAddressCommand();
-            assignWarehouseToAddress.configureWarehouse(command.getWarehouseId());
-            assignWarehouseToAddress.configureAddress(command.getAddress());
-            this.assignWarehouse(assignWarehouseToAddress);
-        }
-
         var finalAddress = addressRepository.getById(result.getId());
 
         return finalAddress;
@@ -100,37 +93,6 @@ public class AddressesService implements IAddressesService {
             throw new EntityNotFoundException("Adres został zarchiwizowany");
 
         address.setCustomer(customer);
-        addressRepository.save(address);
-    }
-
-    @Override
-    @Transactional
-    public void assignWarehouse(AssignWarehouseToAddressCommand command) {
-        if (command == null)
-            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
-
-        if(command.getWarehouseId() == null)
-            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
-
-        if(command.getAddressId() == null)
-            throw new IllegalArgumentException("Nie podano identifikatora adresu");
-
-        var warehouse = warehouseRepository.getById(command.getWarehouseId());
-        var address = addressRepository.getById(command.getAddressId());
-
-        if(warehouse == null)
-            throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
-
-        if(warehouse.isArchival())
-            throw new EntityNotFoundException("Magazyn został zarchiwizowany");
-
-        if(address == null)
-            throw new EntityNotFoundException("Adres o podanym identyfikatorze nie istnieje");
-
-        if(address.isArchival())
-            throw new EntityNotFoundException("Adres został zarchiwizowany");
-
-        address.setWarehouse(warehouse);
         addressRepository.save(address);
     }
 
