@@ -10,14 +10,12 @@ import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
 import edu.uws.ii.springboot.interfaces.ICustomersService;
+import edu.uws.ii.springboot.interfaces.IEmployeesService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
-import edu.uws.ii.springboot.repositories.IAddressesRepository;
-import edu.uws.ii.springboot.repositories.ICustomersRepository;
-import edu.uws.ii.springboot.repositories.ISectorsRepository;
-import edu.uws.ii.springboot.repositories.IWarehouseRepository;
+import edu.uws.ii.springboot.repositories.*;
 import edu.uws.ii.springboot.specifications.SectorSpecifications;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,17 +30,17 @@ public class WarehousesService implements IWarehousesService {
 
     private final IWarehouseRepository warehouseRepository;
     private final IAddressesRepository addressesRepository;
-    private final ICustomersRepository customersRepository;
     private final ISectorsRepository sectorsRepository;
-    private final ICustomersService  customersService;
+    private final ICustomersService customersService;
+    private final IEmployeesRepository employeesRepository;
     private final IAddressesService addressesService;
 
-    public WarehousesService(ICustomersService customersService, ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersRepository customersRepository) {
+    public WarehousesService(IEmployeesRepository employeesService, ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersService customersService) {
         this.warehouseRepository = warehouseRepository;
         this.addressesService = addressesService;
         this.addressesRepository = addressesRepository;
-        this.customersRepository = customersRepository;
         this.customersService = customersService;
+        this.employeesRepository = employeesService;
         this.sectorsRepository = sectorsRepository;
     }
 
@@ -124,23 +122,38 @@ public class WarehousesService implements IWarehousesService {
     @Override
     @Transactional
     public void editWarehouse(EditWarehouseCommand command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+
 
     }
 
     @Override
     @Transactional
     public void assignEmployee(AssignEmployeeToWarehouse command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+
 
     }
 
     @Override
     @Transactional
     public void unassignEmployee(UnassignEmployeeFromWarehouse command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
 
     }
 
     @Override
     public void deleteWarehouse(DeleteWarehouseCommand command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+
 
     }
 
@@ -225,6 +238,37 @@ public class WarehousesService implements IWarehousesService {
     @Override
     @Transactional
     public void editSector(EditSectorCommand command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
+
+        var sectorId = command.getId();
+        if (sectorId == null || sectorId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora sektora");
+
+        var code = command.getCode();
+        var name = command.getName();
+
+        if(code.isBlank())
+            throw new IllegalArgumentException("Sektor nie może mieć pustego kodu");
+
+        if(name.isBlank())
+            throw new IllegalArgumentException("Sektor nie może mieć pustej nazwy");
+
+        var sectorToEdit = sectorsRepository.findById(sectorId).get();
+        if(sectorToEdit == null)
+            throw new EntityNotFoundException("Sektor o podanym identyfikatorze nie istnieje");
+
+        var alreadyExists = this.getSectors(new GetSectorCommand().whereCodeEquals(code));
+        if(!alreadyExists.isEmpty() && alreadyExists.getFirst().getId() != sectorId)
+            throw new IllegalStateException("Istnieje już sektor z takim kodem");
+
+        if(code != null)
+            sectorToEdit.setCode(code);
+
+        if(name != null)
+            sectorToEdit.setName(name);
+
+        sectorsRepository.save(sectorToEdit);
 
     }
 
