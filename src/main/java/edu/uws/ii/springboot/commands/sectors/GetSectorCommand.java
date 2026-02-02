@@ -1,5 +1,6 @@
 package edu.uws.ii.springboot.commands.sectors;
 
+import edu.uws.ii.springboot.models.Warehouse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,9 +10,15 @@ public class GetSectorCommand {
 
     private String code;
     private Long id;
+    private Long warehouseId;
 
     public GetSectorCommand() {
 
+    }
+
+    public GetSectorCommand whereWarehouseEquals(Warehouse  warehouse) {
+        this.warehouseId = warehouse.getId();
+        return this;
     }
 
     public GetSectorCommand whereCodeEquals(String code) {

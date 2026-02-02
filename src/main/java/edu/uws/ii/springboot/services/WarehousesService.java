@@ -22,6 +22,7 @@ import edu.uws.ii.springboot.specifications.SectorSpecifications;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.hibernate.sql.results.graph.entity.internal.BatchEntityInsideEmbeddableSelectFetchInitializer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -196,7 +197,29 @@ public class WarehousesService implements IWarehousesService {
     @Override
     @Transactional
     public void deleteSector(DeleteSectorCommand command) {
+        if (command == null)
+            throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        var sectorId = command.getId();
+        if (sectorId == null || sectorId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora sektora");
+
+        var sector = sectorsRepository.findById(sectorId).get();
+
+        if(sector == null)
+            throw new EntityNotFoundException("Sektor z takim identyfikatorem nie istnieje");
+
+        if(sector.getType() == SectorTypeEnum.UnloadingHub)
+            throw new  IllegalStateException("Usuwanie sektora rozładunkowego jest zabronione");
+
+        if(sector.getType() == SectorTypeEnum.LoadingHub)
+            throw new  IllegalStateException("Usuwanie sektora załadunkowego jest zabronione");
+
+        var magazineSectors = this.getSectors(new GetSectorCommand().whereWarehouseEquals(sector.getWarehouse()));
+        if(magazineSectors.stream().count() == 3)
+            throw new IllegalStateException("Magazyn musi posiadać conajmniej jeden zwykły sektor");
+
+        sectorsRepository.delete(sector);
     }
 
     @Override

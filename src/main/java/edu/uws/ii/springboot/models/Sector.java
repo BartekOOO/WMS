@@ -36,4 +36,8 @@ public class Sector implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     private SectorTypeEnum type;
+
+    public Sector() {
+
+    }
 }
