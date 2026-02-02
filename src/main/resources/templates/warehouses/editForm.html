@@ -1,15 +1,13 @@
 <div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
 
-    <!-- ====== EDYCJA MAGAZYNU ====== -->
+
     <section class="card">
         <header class="card-h">
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                 <h2 th:text="${command != null && command.code != null ? 'Magazyn: ' + command.code : 'Edycja magazynu'}">
                     Edycja magazynu
                 </h2>
-                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">
-                    Tryb: edycja
-                </div>
+                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: edycja</div>
             </div>
 
             <div class="card-actions">
@@ -19,7 +17,6 @@
 
         <div class="card-b">
 
-            <!-- Sukces / błąd -->
             <div class="alert-glass alert-glass--success" th:if="${success != null}">
                 <div class="alert-glass__icon">✓</div>
                 <div class="alert-glass__content">
@@ -41,10 +38,6 @@
                   method="post"
                   style="display:grid;gap:14px"
                   onsubmit="return lockSubmit(this)">
-
-                <!-- (opcjonalnie) CSRF:
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                -->
 
                 <input type="hidden" th:field="*{id}"/>
 
@@ -99,18 +92,16 @@
                 </div>
 
             </form>
-
         </div>
     </section>
 
-
-    <section class="card address-panel">
+    <section class="card address-panel address-panel--strong" style="margin-top:18px">
         <header class="card-h">
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                 <h2 style="font-size:1.05rem">Adres magazynu</h2>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                    <span class="badge">👁️ Tylko podgląd</span>
-                    <div style="color:rgba(255,255,255,0.70);font-size:.90rem">
+                    <span class="badge">Tylko podgląd</span>
+                    <div style="color:rgba(255,255,255,0.80);font-size:.90rem">
                         To jest adres przypisany do magazynu.
                     </div>
                 </div>
@@ -124,28 +115,28 @@
                 <div class="ph-sub">Ten magazyn nie ma przypisanego adresu.</div>
             </div>
 
-            <div th:if="${address != null}" style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
-                <div>
+            <div th:if="${address != null}" class="addr-grid">
+                <div class="addr-field">
                     <label class="form-label">Ulica</label>
                     <input class="form-input form-input--ro" th:value="${address.street}" readonly/>
                 </div>
 
-                <div>
+                <div class="addr-field">
                     <label class="form-label">Kod</label>
                     <input class="form-input form-input--ro" th:value="${address.zipCode}" readonly/>
                 </div>
 
-                <div>
+                <div class="addr-field">
                     <label class="form-label">Miasto</label>
                     <input class="form-input form-input--ro" th:value="${address.city}" readonly/>
                 </div>
 
-                <div>
+                <div class="addr-field">
                     <label class="form-label">Województwo</label>
                     <input class="form-input form-input--ro" th:value="${address.state != null ? address.state : '—'}" readonly/>
                 </div>
 
-                <div style="grid-column:1 / -1">
+                <div class="addr-field addr-field--full">
                     <label class="form-label">Kraj</label>
                     <input class="form-input form-input--ro" th:value="${address.country}" readonly/>
                 </div>
@@ -154,7 +145,7 @@
         </div>
     </section>
 
-    <section class="card">
+    <section class="card" style="margin-top:18px">
         <header class="card-h">
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                 <h2>Sektory</h2>
@@ -162,8 +153,7 @@
             </div>
 
             <div class="card-actions">
-                <button type="button" class="chip chip--filter"
-                        onclick="openSectorCreate()">
+                <button type="button" class="chip chip--filter" onclick="openSectorCreate()">
                     ➕ Dodaj sektor
                 </button>
             </div>
@@ -177,7 +167,7 @@
                         <th>Kod</th>
                         <th>Nazwa</th>
                         <th>Typ</th>
-                        <th style="width: 220px">Akcje</th>
+                        <th style="width:220px">Akcje</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -186,7 +176,7 @@
                         <td colspan="4">
                             <div class="placeholder" style="margin:6px 0">
                                 <div class="ph-title">Brak sektorów</div>
-                                <div class="ph-sub">Dodaj pierwszy sektor przyciskiem „Dodaj sektor”.</div>
+                                <div class="ph-sub">Dodaj sektor przyciskiem „Dodaj sektor”.</div>
                             </div>
                         </td>
                     </tr>
@@ -202,14 +192,10 @@
                         </td>
                         <td>
                             <div style="display:flex;gap:10px;flex-wrap:wrap">
-
                                 <button type="button"
                                         class="chip chip--muted chip--sm"
                                         onclick="openSectorEdit(this)"
-                                        th:attr="data-id=${s.id},
-                                                 data-code=${s.code},
-                                                 data-name=${s.name},
-                                                 data-type=${s.type.name()}">
+                                        th:attr="data-id=${s.id},data-code=${s.code},data-name=${s.name}">
                                     ✏️ Edytuj
                                 </button>
 
@@ -218,7 +204,6 @@
                                    onclick="return confirm('Usunąć sektor?')">
                                     🗑 Usuń
                                 </a>
-
                             </div>
                         </td>
                     </tr>
@@ -229,8 +214,7 @@
         </div>
     </section>
 
-
-    <section class="card">
+    <section class="card" style="margin-top:18px">
         <header class="card-h">
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                 <h2>Przypisani pracownicy</h2>
@@ -238,8 +222,7 @@
             </div>
 
             <div class="card-actions">
-                <button type="button" class="chip chip--filter"
-                        onclick="openEmployeeModal()">
+                <button type="button" class="chip chip--filter" onclick="openEmployeeModal()">
                     ➕ Przypisz pracownika
                 </button>
             </div>
@@ -253,7 +236,7 @@
                         <th>Pracownik</th>
                         <th>Email</th>
                         <th>Telefon</th>
-                        <th style="width: 220px">Akcje</th>
+                        <th style="width:220px">Akcje</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -319,15 +302,6 @@
                     <input class="form-input" name="name" id="sectorName" placeholder="np. Składowanie" required/>
                 </div>
 
-                <div class="field">
-                    <label class="form-label">Typ</label>
-                    <select class="form-input" name="type" id="sectorType" required>
-                        <option value="Normal">Sektor</option>
-                        <option value="LoadingHub">Hub załadunkowy</option>
-                        <option value="UnloadingHub">Hub rozładunkowy</option>
-                    </select>
-                </div>
-
                 <div class="modal__actions">
                     <button type="button" class="chip chip--muted" onclick="closeModal('sectorModal')">Anuluj</button>
                     <button type="submit" class="chip chip--save">💾 Zapisz sektor</button>
@@ -335,7 +309,6 @@
             </form>
         </div>
     </div>
-
 
     <div class="modal" id="employeeModal" aria-hidden="true">
         <div class="modal__backdrop" onclick="closeModal('employeeModal')"></div>
@@ -352,7 +325,7 @@
                     <label class="form-label">Szukaj</label>
                     <input class="form-input" id="empQuery" placeholder="Imię / nazwisko / email..."/>
                     <div class="form-hint">
-                        Lista ładowana z endpointa (jeszcze nie istnieje): <span class="mono" id="empEndpointHint"></span>
+                        Lista z endpointa (jeszcze nie istnieje): <span class="mono" id="empEndpointHint"></span>
                     </div>
                 </div>
 
@@ -373,32 +346,30 @@
     </div>
 
 
-    <!-- ====== SCRIPTS ====== -->
     <script th:inline="javascript">
         const WAREHOUSE_ID = /*[[${command != null ? command.id : 0}]]*/ 0;
 
-        // Endpointy (na razie "placeholdery" — kontrolery dopiero zrobisz)
         const SECTOR_UPSERT_URL   = /*[[@{/Warehouses/UpsertSector}]]*/ '/Warehouses/UpsertSector';
         const EMPLOYEE_LOOKUP_URL = /*[[@{/Employees/Lookup}]]*/ '/Employees/Lookup';
         const EMPLOYEE_ATTACH_URL = /*[[@{/Warehouses/AttachEmployee}]]*/ '/Warehouses/AttachEmployee';
 
-        // CSRF (jeśli masz Spring Security CSRF)
         const CSRF_HEADER = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ '';
         const CSRF_TOKEN  = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
 
-        // --- modal helpers
         function openModal(id){
             const m = document.getElementById(id);
             if(!m) return;
             m.classList.add('open');
             m.setAttribute('aria-hidden','false');
         }
+
         function closeModal(id){
             const m = document.getElementById(id);
             if(!m) return;
             m.classList.remove('open');
             m.setAttribute('aria-hidden','true');
         }
+
         document.addEventListener('keydown', (e)=>{
             if(e.key === 'Escape'){
                 closeModal('sectorModal');
@@ -406,7 +377,6 @@
             }
         });
 
-        // --- lock submit (reuse)
         function lockSubmit(form){
             try{
                 const btn = form.querySelector('button[type="submit"]');
@@ -418,7 +388,6 @@
             return true;
         }
 
-        // ===== Sector modal =====
         function openSectorCreate(){
             document.getElementById('sectorModalTitle').textContent = 'Dodaj sektor';
             const f = document.getElementById('sectorForm');
@@ -427,7 +396,6 @@
             document.getElementById('sectorId').value = '';
             document.getElementById('sectorCode').value = '';
             document.getElementById('sectorName').value = '';
-            document.getElementById('sectorType').value = 'Normal';
 
             openModal('sectorModal');
         }
@@ -436,7 +404,6 @@
             const id   = btn.getAttribute('data-id') || '';
             const code = btn.getAttribute('data-code') || '';
             const name = btn.getAttribute('data-name') || '';
-            const type = btn.getAttribute('data-type') || 'Normal';
 
             document.getElementById('sectorModalTitle').textContent = 'Edytuj sektor';
             const f = document.getElementById('sectorForm');
@@ -445,14 +412,13 @@
             document.getElementById('sectorId').value = id;
             document.getElementById('sectorCode').value = code;
             document.getElementById('sectorName').value = name;
-            document.getElementById('sectorType').value = type;
 
             openModal('sectorModal');
         }
 
-        // ===== Employee modal =====
         function openEmployeeModal(){
-            document.getElementById('empEndpointHint').textContent = EMPLOYEE_LOOKUP_URL + '?query=...&warehouseId=' + WAREHOUSE_ID;
+            document.getElementById('empEndpointHint').textContent =
+                EMPLOYEE_LOOKUP_URL + '?query=...&warehouseId=' + WAREHOUSE_ID;
             openModal('employeeModal');
         }
 
@@ -468,10 +434,14 @@
               </div>`;
 
             try{
-                const url = EMPLOYEE_LOOKUP_URL + '?query=' + encodeURIComponent(q) + '&warehouseId=' + encodeURIComponent(WAREHOUSE_ID);
+                const url = EMPLOYEE_LOOKUP_URL
+                  + '?query=' + encodeURIComponent(q)
+                  + '&warehouseId=' + encodeURIComponent(WAREHOUSE_ID);
+
                 const res = await fetch(url, { headers: { 'Accept':'application/json' } });
                 if(!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json(); // oczekuję: [{id, firstName, lastName, email, phone}]
+
+                const data = await res.json();
                 renderEmployeesPick(data || []);
             }catch(err){
                 list.innerHTML = `
@@ -479,9 +449,7 @@
                     <div class="alert-glass__icon">!</div>
                     <div class="alert-glass__content">
                       <div class="alert-glass__title">Nie udało się pobrać listy</div>
-                      <div class="alert-glass__msg">
-                        Endpoint jeszcze nie istnieje albo zwrócił błąd. (${String(err)})
-                      </div>
+                      <div class="alert-glass__msg">Endpoint nie istnieje albo zwrócił błąd. (${String(err)})</div>
                     </div>
                   </div>`;
             }
@@ -515,7 +483,6 @@
         }
 
         async function attachEmployee(employeeId){
-            // preferujemy POST fetch; jak nie wyjdzie — fallback do GET (gdy zrobisz taki endpoint)
             try{
                 const fd = new FormData();
                 fd.append('warehouseId', String(WAREHOUSE_ID));
@@ -527,12 +494,9 @@
                 const res = await fetch(EMPLOYEE_ATTACH_URL, { method:'POST', body: fd, headers });
                 if(!res.ok) throw new Error('HTTP ' + res.status);
 
-                // po sukcesie odśwież stronę, żeby tabela się zaktualizowała
                 window.location.reload();
             }catch(err){
-                // fallback: jeśli zrobisz GET:
-                // window.location.href = '/Warehouses/AttachEmployee?warehouseId=' + WAREHOUSE_ID + '&employeeId=' + employeeId;
-                alert('Nie udało się przypisać (endpoint jeszcze nie istnieje albo zwrócił błąd). ' + String(err));
+                alert('Nie udało się przypisać. ' + String(err));
             }
         }
 

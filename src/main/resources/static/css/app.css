@@ -1459,3 +1459,17 @@ select.form-input option:checked {
   font-weight: 900;
   font-size: .86rem;
 }
+
+
+/* Sekcje POD SOBĄ, pełna szerokość */
+.wh-sections{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 18px; /* jak chcesz jeszcze luźniej to daj 22-26px */
+}
+
+/* pewność że sekcje nie próbują się “rozjechać” w bok */
+.wh-sections > .card{
+  width: 100%;
+  min-width: 0;
+}
