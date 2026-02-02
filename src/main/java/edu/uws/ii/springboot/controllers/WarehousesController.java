@@ -1,7 +1,11 @@
 package edu.uws.ii.springboot.controllers;
 
+import edu.uws.ii.springboot.commands.customers.DeleteCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
+import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
+import edu.uws.ii.springboot.commands.warehouses.DeleteWarehouseCommand;
+import edu.uws.ii.springboot.commands.warehouses.EditWarehouseCommand;
 import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
 import edu.uws.ii.springboot.commands.warehouses.RegisterWarehouseCommand;
 import edu.uws.ii.springboot.interfaces.ICustomersService;
@@ -11,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/Warehouses")
@@ -89,18 +95,15 @@ public class WarehousesController {
 
         } catch (Exception ex) {
 
-            // error + widok
             model.addAttribute("error", ex.getMessage());
             model.addAttribute("title", "WMS • Dodawanie magazynu");
             model.addAttribute("content", "warehouses/addForm :: fragment");
 
-            // IMPORTANT: Address nie może być null, bo th:field *{address.street} może wywalić
             if (command.getAddress() == null) {
                 command.configureAddress(new edu.uws.ii.springboot.models.Address());
             }
             model.addAttribute("command", command);
 
-            // Ponownie ładujemy listę adresów firmy (jak w GET AddForm)
             var q = new edu.uws.ii.springboot.commands.customers.GetCustomersCommand()
                     .whereIsMain(true)
                     .whereIsNotArchival();
@@ -121,5 +124,40 @@ public class WarehousesController {
         }
     }
 
+    @GetMapping("/EditForm")
+    public String EditForm(@RequestParam("id") Long id, Model model, RedirectAttributes ra) {
 
+        model.addAttribute("title", "WMS • Edycja magazynu");
+        model.addAttribute("content", "warehouses/editForm :: fragment");
+
+        var warehouse = warehousesService.getWarehouses(new GetWarehousesCommand().whereIdEquals(id)).getFirst();
+        var cmd = new EditWarehouseCommand().configureWarehouse(warehouse);
+
+        model.addAttribute("address", warehouse.getAddress());
+        model.addAttribute("employees", warehouse.getEmployees());
+        model.addAttribute("sectors",  warehouse.getSectors());
+
+        model.addAttribute("command", cmd);
+
+        return "app";
+    }
+
+    @GetMapping("/DeleteWarehouse")
+    public String Delete(RedirectAttributes ra,
+                             @RequestParam Long id) {
+        try{
+            var command = new DeleteWarehouseCommand(id);
+            var warehouse = warehousesService.getWarehouses(new GetWarehousesCommand().whereIdEquals(id)).getFirst();
+            warehousesService.deleteWarehouse(command);
+            var date = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            ra.addFlashAttribute("success", date + " • Pomyślnie udało się usunąć magazyn '" + warehouse.getCode() + "'");
+            return "redirect:/Warehouses/GetWarehouses?isArchival=false";
+        } catch(Exception ex){
+            ra.addFlashAttribute(
+                    "error",
+                    "Nie udało się usunąć magazynu. " + (ex.getMessage() != null ? ex.getMessage() : "")
+            );
+            return "redirect:/Warehouses/EditForm?id=" + id;
+        }
+    }
 }

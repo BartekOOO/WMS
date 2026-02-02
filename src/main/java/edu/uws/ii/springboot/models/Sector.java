@@ -17,7 +17,7 @@ import java.io.Serializable;
 public class Sector implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="Id")
+    @Column(name = "Id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -25,14 +25,14 @@ public class Sector implements Serializable {
     private Warehouse warehouse;
 
     @NotBlank
-    @Column(nullable = false, length = 32, name="Code")
+    @Column(nullable = false, length = 32, name = "Code")
     private String code;
 
     @NotBlank
-    @Column(length = 200, name="Name")
+    @Column(length = 200, name = "Name")
     private String name;
 
-    @Column(name="Type")
+    @Column(name = "Type")
     @NotNull
     @Enumerated(EnumType.STRING)
     private SectorTypeEnum type;

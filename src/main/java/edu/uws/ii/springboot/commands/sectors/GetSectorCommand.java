@@ -5,20 +5,21 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetSectorsCommand {
+public class GetSectorCommand {
+
     private String code;
     private Long id;
 
-    public GetSectorsCommand() {
+    public GetSectorCommand() {
 
     }
 
-    public GetSectorsCommand whereCodeEquals(String code) {
+    public GetSectorCommand whereCodeEquals(String code) {
         this.code = code;
         return this;
     }
 
-    public GetSectorsCommand whereIdEquals(Long id) {
+    public GetSectorCommand whereIdEquals(Long id) {
         this.id = id;
         return this;
     }

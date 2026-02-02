@@ -1349,3 +1349,113 @@ select.form-input option:checked {
     linear-gradient(180deg, rgba(170,90,255,0.14), rgba(170,90,255,0.06));
   border-color: rgba(200,140,255,0.20);
 }
+
+
+/* ===== Tagi sektorów ===== */
+.tag--loadingHub{
+  background: linear-gradient(180deg, rgba(60, 140, 255, 0.22), rgba(60, 140, 255, 0.10));
+  border-color: rgba(120, 180, 255, 0.40);
+  color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 22px rgba(60, 140, 255, 0.10);
+}
+.tag--unloadingHub{
+  background: linear-gradient(180deg, rgba(46, 204, 113, 0.22), rgba(46, 204, 113, 0.10));
+  border-color: rgba(120, 240, 170, 0.38);
+  color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 22px rgba(46, 204, 113, 0.10);
+}
+.tag--sector{
+  background: linear-gradient(180deg, rgba(170, 90, 255, 0.22), rgba(170, 90, 255, 0.10));
+  border-color: rgba(200, 140, 255, 0.38);
+  color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 22px rgba(170, 90, 255, 0.10);
+}
+
+
+/* ===== Mini chip (do akcji w tabelach/modalu) ===== */
+.chip--sm{
+  padding: 8px 12px;
+  min-height: 36px;
+  font-size: .92rem;
+}
+
+/* ===== Lista wyboru w modalu pracowników ===== */
+.pick-list{
+  display:grid;
+  gap:10px;
+  margin-top: 6px;
+}
+
+.pick-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: 12px 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.pick-item:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.pick-main{ min-width:0; }
+.pick-title{
+  font-weight: 1000;
+  color: rgba(255,255,255,0.92);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pick-sub{
+  margin-top: 6px;
+  color: rgba(255,255,255,0.62);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* ===== Address panel: bardziej “na froncie”, ale nadal read-only ===== */
+.address-panel{
+  background:
+    radial-gradient(800px 250px at 20% 0%, rgba(0,212,255,0.18), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 16px 44px rgba(0,0,0,0.40);
+}
+
+.address-panel .card-h{
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+/* Read-only inputy: nie przygaszaj jak disabled */
+.form-input--ro{
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.92);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* żeby focus nie “udawał edycji” */
+.form-input--ro:focus{
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* mały badge “read-only” */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.82);
+  font-weight: 900;
+  font-size: .86rem;
+}

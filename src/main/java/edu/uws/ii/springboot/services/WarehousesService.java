@@ -2,7 +2,9 @@ package edu.uws.ii.springboot.services;
 
 import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
-import edu.uws.ii.springboot.commands.sectors.GetSectorsCommand;
+import edu.uws.ii.springboot.commands.sectors.DeleteSectorCommand;
+import edu.uws.ii.springboot.commands.sectors.EditSectorCommand;
+import edu.uws.ii.springboot.commands.sectors.GetSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
@@ -20,7 +22,6 @@ import edu.uws.ii.springboot.specifications.SectorSpecifications;
 import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.hibernate.sql.results.graph.entity.internal.BatchEntityInsideEmbeddableSelectFetchInitializer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -138,6 +139,11 @@ public class WarehousesService implements IWarehousesService {
     }
 
     @Override
+    public void deleteWarehouse(DeleteWarehouseCommand command) {
+
+    }
+
+    @Override
     @Transactional
     public Sector registerSector(RegisterSectorCommand command) {
         if (command == null)
@@ -169,7 +175,7 @@ public class WarehousesService implements IWarehousesService {
         if (type == SectorTypeEnum.UnloadingHub && warehouse.getUnloadingHub() != null)
             throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada sektor rozładunkowy");
 
-        var cmd = new GetSectorsCommand().whereCodeEquals(code);
+        var cmd = new GetSectorCommand().whereCodeEquals(code);
         var usedCode = this.getSectors(cmd).isEmpty();
 
         if(!usedCode)
@@ -181,10 +187,22 @@ public class WarehousesService implements IWarehousesService {
     }
 
     @Override
-    public List<Sector> getSectors(GetSectorsCommand command) {
+    public List<Sector> getSectors(GetSectorCommand command) {
         if(command == null)
-            command = new GetSectorsCommand();
+            command = new GetSectorCommand();
         return sectorsRepository.findAll(SectorSpecifications.byFilter(command));
+    }
+
+    @Override
+    @Transactional
+    public void deleteSector(DeleteSectorCommand command) {
+
+    }
+
+    @Override
+    @Transactional
+    public void editSector(EditSectorCommand command) {
+
     }
 
 }

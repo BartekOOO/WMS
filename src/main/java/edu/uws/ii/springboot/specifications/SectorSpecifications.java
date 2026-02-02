@@ -1,12 +1,12 @@
 package edu.uws.ii.springboot.specifications;
 
-import edu.uws.ii.springboot.commands.sectors.GetSectorsCommand;
+import edu.uws.ii.springboot.commands.sectors.GetSectorCommand;
 import edu.uws.ii.springboot.models.Sector;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class SectorSpecifications {
-    public static Specification<Sector> byFilter(GetSectorsCommand c) {
+    public static Specification<Sector> byFilter(GetSectorCommand c) {
         return (root, query, cb) -> {
 
             if (!Long.class.equals(query.getResultType()) && !long.class.equals(query.getResultType())) {

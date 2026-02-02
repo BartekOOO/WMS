@@ -7,8 +7,9 @@ import lombok.Setter;
 @Setter
 public class DeleteWarehouseCommand {
 
-    public DeleteWarehouseCommand() {
+    private Long id;
 
-
+    public DeleteWarehouseCommand(Long id) {
+        this.id = id;
     }
 }
