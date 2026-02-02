@@ -15,6 +15,4 @@ public interface IEmployeesService {
     void deleteEmployee(DeleteEmployeeCommand command);
     void editEmployee(EditEmployeeCommand command);
     List<Employee> getEmployees(GetEmployeesCommand command);
-    void assginWarehouse(AssignEmployeeToWarehouse command);
-    void unassignWarehouse(UnassignEmployeeFromWarehouse command);
 }

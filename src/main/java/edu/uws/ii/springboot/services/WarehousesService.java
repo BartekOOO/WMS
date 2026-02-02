@@ -125,8 +125,50 @@ public class WarehousesService implements IWarehousesService {
         if (command == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        var id = command.getId();
+        if (id == null || id == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
 
+        var code = command.getCode();
+        var name = command.getName();
+        var description = command.getDescription();
 
+        if (code.isBlank())
+            throw new IllegalArgumentException("Nie podano kodu magazynu");
+
+        if (name.isBlank())
+            throw new IllegalArgumentException("Nie podano nazwy magazynu");
+
+        var warehouse = warehouseRepository.findById(id).get();
+
+        if(warehouse == null)
+            new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
+
+        if (warehouse.getCode() == null) {
+            var existsCmd = new GetWarehousesCommand().whereCodeEqualst(code);
+            var found = this.getWarehouses(existsCmd);
+
+            var collision = found.stream()
+                    .anyMatch(w -> w != null
+                            && w.getId() != null
+                            && !w.getId().equals(id)
+                            && w.getCode() != null
+                            && w.getCode().equalsIgnoreCase(code));
+
+            if (collision)
+                throw new IllegalStateException("Magazyn z takim kodem już istnieje");
+        }
+
+        if(code != null)
+            warehouse.setCode(code);
+
+        if(name != null)
+            warehouse.setName(name);
+
+        if(description != null)
+            warehouse.setDescription(description);
+
+        warehouseRepository.save(warehouse);
     }
 
     @Override
@@ -135,8 +177,33 @@ public class WarehousesService implements IWarehousesService {
         if (command == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        var employeeId = command.getEmployeeId();
+        var warehouseId = command.getWarehouseId();
 
+        if (employeeId == null || employeeId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora pracownika");
 
+        if (warehouseId == null || warehouseId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
+
+        var wOpt = warehouseRepository.findById(warehouseId);
+        if (wOpt.isEmpty())
+            throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
+        var warehouse = wOpt.get();
+
+        var eOpt = employeesRepository.findById(employeeId);
+        if (eOpt.isEmpty())
+            throw new EntityNotFoundException("Pracownik o podanym identyfikatorze nie istnieje");
+        var employee = eOpt.get();
+
+        for (var w : employee.getWarehouses()) {
+            if (w != null && w.getId() != null && w.getId().equals(warehouseId)) {
+                return;
+            }
+        }
+
+        employee.getWarehouses().add(warehouse);
+        employeesRepository.save(employee);
     }
 
     @Override
@@ -145,15 +212,55 @@ public class WarehousesService implements IWarehousesService {
         if (command == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        var employeeId = command.getEmployeeId();
+        var warehouseId = command.getWarehouseId();
 
+        if (employeeId == null || employeeId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora pracownika");
+
+        if (warehouseId == null || warehouseId == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
+
+        var eOpt = employeesRepository.findById(employeeId);
+        if (eOpt.isEmpty())
+            throw new EntityNotFoundException("Pracownik o podanym identyfikatorze nie istnieje");
+        var employee = eOpt.get();
+
+        employee.getWarehouses().removeIf(w ->
+                w != null && w.getId() != null && w.getId().equals(warehouseId)
+        );
+
+        employeesRepository.save(employee);
     }
 
     @Override
+    @Transactional
     public void deleteWarehouse(DeleteWarehouseCommand command) {
         if (command == null)
             throw new IllegalArgumentException("Przekazano pusty obiekt komendy");
 
+        var id = command.getId();
+        if (id == null || id == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
 
+        var wOpt = warehouseRepository.findById(id);
+        if (wOpt.isEmpty())
+            throw new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
+
+        var warehouse = wOpt.get();
+
+        if (warehouse.getEmployees() != null) {
+            for (var e : warehouse.getEmployees()) {
+                if (e == null) continue;
+                e.getWarehouses().removeIf(w -> w != null && w.getId() != null && w.getId().equals(id));
+                employeesRepository.save(e);
+            }
+        }
+
+        warehouse.setAddress(null);
+
+        warehouse.setArchival(true);
+        warehouseRepository.save(warehouse);
 
     }
 

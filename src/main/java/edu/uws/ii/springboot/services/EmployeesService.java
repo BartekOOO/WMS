@@ -42,13 +42,4 @@ public class EmployeesService implements IEmployeesService {
         return List.of();
     }
 
-    @Override
-    public void assginWarehouse(AssignEmployeeToWarehouse command) {
-
-    }
-
-    @Override
-    public void unassignWarehouse(UnassignEmployeeFromWarehouse command) {
-
-    }
 }

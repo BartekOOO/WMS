@@ -9,7 +9,6 @@ public class SectorSpecifications {
     public static Specification<Sector> byFilter(GetSectorCommand c) {
         return (root, query, cb) -> {
 
-            // fetch only for entity queries (not count)
             if (!Long.class.equals(query.getResultType()) && !long.class.equals(query.getResultType())) {
                 root.fetch("warehouse", JoinType.LEFT);
                 query.distinct(true);
@@ -23,14 +22,12 @@ public class SectorSpecifications {
             }
 
             if (c.getWarehouseId() != null) {
-                // Sector.warehouse.id = warehouseId
                 p = cb.and(p, cb.equal(root.get("warehouse").get("id"), c.getWarehouseId()));
             }
 
             if (c.getCode() != null && !c.getCode().trim().isEmpty()) {
                 String code = c.getCode().trim().toLowerCase();
 
-                // jeśli user nie podał wildcardów, to robimy "contains"
                 if (!code.contains("%") && !code.contains("_")) {
                     code = "%" + code + "%";
                 }
