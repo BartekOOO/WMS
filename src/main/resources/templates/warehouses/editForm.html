@@ -312,21 +312,6 @@
                     <input class="form-input" name="name" id="sectorName" placeholder="np. Składowanie" required/>
                 </div>
 
-                <div class="field">
-                    <label class="form-label">Typ</label>
-                    <select class="form-input" name="type" id="sectorType" required>
-                        <option value="" disabled selected>— wybierz —</option>
-                        <option th:each="t : ${sectorTypes}"
-                                th:value="${t.name()}"
-                                th:text="${t.description}">
-                            Sektor
-                        </option>
-                    </select>
-                    <div class="form-hint" style="opacity:.75">
-                        Typ wpływa na logikę (np. LoadingHub / UnloadingHub).
-                    </div>
-                </div>
-
                 <div class="modal__actions">
                     <button type="button" class="chip chip--muted" onclick="closeModal('sectorModal')">Anuluj</button>
                     <button type="submit" class="chip chip--save">💾 Zapisz sektor</button>

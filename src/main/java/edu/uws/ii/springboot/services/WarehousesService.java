@@ -2,16 +2,14 @@ package edu.uws.ii.springboot.services;
 
 import edu.uws.ii.springboot.commands.addresses.RegisterAddressCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.deliveries.GetDeliveriesCommand;
 import edu.uws.ii.springboot.commands.sectors.DeleteSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.EditSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.GetSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
-import edu.uws.ii.springboot.interfaces.IAddressesService;
-import edu.uws.ii.springboot.interfaces.ICustomersService;
-import edu.uws.ii.springboot.interfaces.IEmployeesService;
-import edu.uws.ii.springboot.interfaces.IWarehousesService;
+import edu.uws.ii.springboot.interfaces.*;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
@@ -23,6 +21,7 @@ import jakarta.transaction.Transactional;
 import org.hibernate.sql.results.graph.entity.internal.BatchEntityInsideEmbeddableSelectFetchInitializer;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -34,14 +33,16 @@ public class WarehousesService implements IWarehousesService {
     private final ICustomersService customersService;
     private final IEmployeesRepository employeesRepository;
     private final IAddressesService addressesService;
+    private final IDeliveriesService deliveriesService;
 
-    public WarehousesService(IEmployeesRepository employeesService, ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersService customersService) {
+    public WarehousesService(IDeliveriesService deliveriesService, IEmployeesRepository employeesService, ISectorsRepository sectorsRepository, IAddressesService addressesService, IWarehouseRepository warehouseRepository, IAddressesRepository addressesRepository, ICustomersService customersService) {
         this.warehouseRepository = warehouseRepository;
         this.addressesService = addressesService;
         this.addressesRepository = addressesRepository;
         this.customersService = customersService;
         this.employeesRepository = employeesService;
         this.sectorsRepository = sectorsRepository;
+        this.deliveriesService = deliveriesService;
     }
 
     @Override
@@ -256,6 +257,14 @@ public class WarehousesService implements IWarehousesService {
             }
         }
 
+        var containsDeliveries = !deliveriesService.getDeliveries(
+                new GetDeliveriesCommand().whereWarehouseEquals(warehouse)
+                        .whereQuantityGreaterThan(BigDecimal.valueOf(0))
+        ).isEmpty();
+
+        if(containsDeliveries)
+            throw new IllegalStateException("Magazyn posiada stany towarowe");
+
         warehouse.setAddress(null);
 
         warehouse.setArchival(true);
@@ -337,6 +346,14 @@ public class WarehousesService implements IWarehousesService {
         var magazineSectors = this.getSectors(new GetSectorCommand().whereWarehouseEquals(sector.getWarehouse()));
         if(magazineSectors.stream().count() == 3)
             throw new IllegalStateException("Magazyn musi posiadać conajmniej jeden zwykły sektor");
+
+        var containsDeliveries = !deliveriesService.getDeliveries(
+                new GetDeliveriesCommand().whereSectorEquals(sector)
+                        .whereQuantityGreaterThan(BigDecimal.valueOf(0))
+        ).isEmpty();
+
+        if(containsDeliveries)
+            throw new IllegalStateException("Sektor posiada stany towarowe");
 
         sectorsRepository.delete(sector);
     }

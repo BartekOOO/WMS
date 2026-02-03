@@ -43,7 +43,7 @@ public class Delivery implements Serializable {
 
     @Positive
     @Column(nullable = false, name="Quantity")
-    private double quantity;
+    private BigDecimal quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatedByDocumentId")
