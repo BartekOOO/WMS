@@ -4,13 +4,18 @@ import edu.uws.ii.springboot.commands.customers.DeleteCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
+import edu.uws.ii.springboot.commands.sectors.DeleteSectorCommand;
+import edu.uws.ii.springboot.commands.sectors.EditSectorCommand;
+import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.DeleteWarehouseCommand;
 import edu.uws.ii.springboot.commands.warehouses.EditWarehouseCommand;
 import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
 import edu.uws.ii.springboot.commands.warehouses.RegisterWarehouseCommand;
+import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.ICustomersService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Sector;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -124,6 +129,33 @@ public class WarehousesController {
         }
     }
 
+    @PostMapping("/EditWarehouse")
+    public String Edit(
+            Model model,
+            RedirectAttributes ra,
+            @ModelAttribute EditWarehouseCommand command
+    ) {
+        try {
+            warehousesService.editWarehouse(command);
+
+            ra.addFlashAttribute("success",
+                    "Pomyślnie udało się edytować magazyn");
+
+            return "redirect:/Warehouses/EditForm?id=" + command.getId();
+
+        } catch (Exception ex) {
+            var warehouse = warehousesService.getWarehouses(new GetWarehousesCommand().whereIdEquals(command.getId())).getFirst();
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("title", "WMS • Edycja magazynu");
+            model.addAttribute("content", "warehouses/editForm :: fragment");
+            model.addAttribute("address", warehouse.getAddress());
+            model.addAttribute("employees", warehouse.getEmployees());
+            model.addAttribute("sectors",  warehouse.getSectors());
+            model.addAttribute("command", command);
+            return "app";
+        }
+    }
+
     @GetMapping("/EditForm")
     public String EditForm(@RequestParam("id") Long id, Model model, RedirectAttributes ra) {
 
@@ -158,6 +190,72 @@ public class WarehousesController {
                     "Nie udało się usunąć magazynu. " + (ex.getMessage() != null ? ex.getMessage() : "")
             );
             return "redirect:/Warehouses/EditForm?id=" + id;
+        }
+
+
+    }
+
+
+    @PostMapping("/UpsertSector")
+    public String UpsertSector(
+            RedirectAttributes ra,
+            @RequestParam Long warehouseId,
+            @RequestParam(required = false) Long id,
+            @RequestParam String code,
+            @RequestParam String name,
+            @RequestParam(required = false) String type
+    ) {
+        try {
+            if (id == null) {
+
+                Sector s = new Sector();
+                s.setCode(code.trim());
+                s.setName(name.trim());
+                s.setType(SectorTypeEnum.Normal);
+
+                RegisterSectorCommand cmd = new RegisterSectorCommand()
+                        .configureWarehouse(warehouseId)
+                        .configureSector(s);
+
+                var created = warehousesService.registerSector(cmd);
+                ra.addFlashAttribute("success", "Dodano sektor '" + created.getCode() + "'.");
+            } else {
+                EditSectorCommand cmd = new EditSectorCommand();
+                cmd.setId(id);
+                cmd.setCode(code.trim());
+                cmd.setName(name.trim());
+
+                warehousesService.editSector(cmd);
+                ra.addFlashAttribute("success", "Zaktualizowano sektor '" + code.trim() + "'.");
+            }
+
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error",
+                    "Nie udało się zapisać sektora. " + (ex.getMessage() != null ? ex.getMessage() : ""));
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+        }
+    }
+
+
+    @GetMapping("/DeleteSector")
+    public String DeleteSector(
+            RedirectAttributes ra,
+            @RequestParam Long warehouseId,
+            @RequestParam Long id
+    ) {
+        try {
+            var cmd = new DeleteSectorCommand().configureSector(id);
+            warehousesService.deleteSector(cmd);
+
+            ra.addFlashAttribute("success", "Usunięto sektor.");
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error",
+                    "Nie udało się usunąć sektora. " + (ex.getMessage() != null ? ex.getMessage() : ""));
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
         }
     }
 }

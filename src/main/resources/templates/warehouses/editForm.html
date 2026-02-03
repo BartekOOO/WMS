@@ -1,6 +1,5 @@
 <div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
 
-
     <section class="card">
         <header class="card-h">
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
@@ -153,14 +152,22 @@
             </div>
 
             <div class="card-actions">
-                <button type="button" class="chip chip--filter" onclick="openSectorCreate()">
+                <button type="button" class="chip chip--filter"
+                        th:disabled="${command == null || command.id == null}"
+                        onclick="openSectorCreate()">
                     ➕ Dodaj sektor
                 </button>
             </div>
         </header>
 
         <div class="card-b">
-            <div class="table-wrap">
+
+            <div class="placeholder" th:if="${command == null || command.id == null}">
+                <div class="ph-title">Najpierw zapisz magazyn</div>
+                <div class="ph-sub">Sektory możesz dodawać dopiero po zapisaniu magazynu.</div>
+            </div>
+
+            <div class="table-wrap" th:if="${command != null && command.id != null}">
                 <table class="table">
                     <thead>
                     <tr>
@@ -185,17 +192,19 @@
                         <td class="mono" th:text="${s.code}">S-01</td>
                         <td th:text="${s.name}">Składowanie</td>
                         <td>
-                            <span th:class="${'tag ' + (s.type.name() == 'LoadingHub' ? 'tag--loadingHub' : (s.type.name() == 'UnloadingHub' ? 'tag--unloadingHub' : 'tag--sector'))}"
+                            <span th:if="${s.type != null}"
+                                  th:class="${'tag ' + (s.type.name() == 'LoadingHub' ? 'tag--loadingHub' : (s.type.name() == 'UnloadingHub' ? 'tag--unloadingHub' : 'tag--sector'))}"
                                   th:text="${s.type.description}">
                                 Sektor
                             </span>
+                            <span th:if="${s.type == null}" class="tag tag--sector">—</span>
                         </td>
                         <td>
                             <div style="display:flex;gap:10px;flex-wrap:wrap">
                                 <button type="button"
                                         class="chip chip--muted chip--sm"
                                         onclick="openSectorEdit(this)"
-                                        th:attr="data-id=${s.id},data-code=${s.code},data-name=${s.name}">
+                                        th:attr="data-id=${s.id},data-code=${s.code},data-name=${s.name},data-type=${s.type != null ? s.type.name() : ''}">
                                     ✏️ Edytuj
                                 </button>
 
@@ -222,7 +231,8 @@
             </div>
 
             <div class="card-actions">
-                <button type="button" class="chip chip--filter" onclick="openEmployeeModal()">
+                <button type="button" class="chip chip--filter" onclick="openEmployeeModal()"
+                        th:disabled="${command == null || command.id == null}">
                     ➕ Przypisz pracownika
                 </button>
             </div>
@@ -302,6 +312,21 @@
                     <input class="form-input" name="name" id="sectorName" placeholder="np. Składowanie" required/>
                 </div>
 
+                <div class="field">
+                    <label class="form-label">Typ</label>
+                    <select class="form-input" name="type" id="sectorType" required>
+                        <option value="" disabled selected>— wybierz —</option>
+                        <option th:each="t : ${sectorTypes}"
+                                th:value="${t.name()}"
+                                th:text="${t.description}">
+                            Sektor
+                        </option>
+                    </select>
+                    <div class="form-hint" style="opacity:.75">
+                        Typ wpływa na logikę (np. LoadingHub / UnloadingHub).
+                    </div>
+                </div>
+
                 <div class="modal__actions">
                     <button type="button" class="chip chip--muted" onclick="closeModal('sectorModal')">Anuluj</button>
                     <button type="submit" class="chip chip--save">💾 Zapisz sektor</button>
@@ -344,7 +369,6 @@
             </div>
         </div>
     </div>
-
 
     <script th:inline="javascript">
         const WAREHOUSE_ID = /*[[${command != null ? command.id : 0}]]*/ 0;
@@ -389,6 +413,11 @@
         }
 
         function openSectorCreate(){
+            if(!WAREHOUSE_ID || Number(WAREHOUSE_ID) <= 0){
+                alert('Najpierw zapisz magazyn, żeby dodawać sektory.');
+                return;
+            }
+
             document.getElementById('sectorModalTitle').textContent = 'Dodaj sektor';
             const f = document.getElementById('sectorForm');
             if(f) f.action = SECTOR_UPSERT_URL;
@@ -397,6 +426,12 @@
             document.getElementById('sectorCode').value = '';
             document.getElementById('sectorName').value = '';
 
+            const typeSel = document.getElementById('sectorType');
+            if(typeSel){
+                const opts = Array.from(typeSel.querySelectorAll('option')).filter(o => o.value);
+                typeSel.value = (opts[0]?.value || '');
+            }
+
             openModal('sectorModal');
         }
 
@@ -404,6 +439,7 @@
             const id   = btn.getAttribute('data-id') || '';
             const code = btn.getAttribute('data-code') || '';
             const name = btn.getAttribute('data-name') || '';
+            const type = btn.getAttribute('data-type') || '';
 
             document.getElementById('sectorModalTitle').textContent = 'Edytuj sektor';
             const f = document.getElementById('sectorForm');
@@ -413,10 +449,20 @@
             document.getElementById('sectorCode').value = code;
             document.getElementById('sectorName').value = name;
 
+            const typeSel = document.getElementById('sectorType');
+            if(typeSel){
+                typeSel.value = type || typeSel.value;
+            }
+
             openModal('sectorModal');
         }
 
         function openEmployeeModal(){
+            if(!WAREHOUSE_ID || Number(WAREHOUSE_ID) <= 0){
+                alert('Najpierw zapisz magazyn, żeby przypisywać pracowników.');
+                return;
+            }
+
             document.getElementById('empEndpointHint').textContent =
                 EMPLOYEE_LOOKUP_URL + '?query=...&warehouseId=' + WAREHOUSE_ID;
             openModal('employeeModal');

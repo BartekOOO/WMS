@@ -141,31 +141,30 @@ public class WarehousesService implements IWarehousesService {
 
         var warehouse = warehouseRepository.findById(id).get();
 
-        if(warehouse == null)
+        if (warehouse == null)
             new EntityNotFoundException("Magazyn o podanym identyfikatorze nie istnieje");
 
-        if (warehouse.getCode() == null) {
-            var existsCmd = new GetWarehousesCommand().whereCodeEqualst(code);
-            var found = this.getWarehouses(existsCmd);
+        var existsCmd = new GetWarehousesCommand().whereCodeEqualst(code);
+        var found = this.getWarehouses(existsCmd);
 
-            var collision = found.stream()
-                    .anyMatch(w -> w != null
-                            && w.getId() != null
-                            && !w.getId().equals(id)
-                            && w.getCode() != null
-                            && w.getCode().equalsIgnoreCase(code));
+        var collision = found.stream()
+                .anyMatch(w -> w != null
+                        && w.getId() != null
+                        && !w.getId().equals(id)
+                        && w.getCode() != null
+                        && w.getCode().equalsIgnoreCase(code));
 
-            if (collision)
-                throw new IllegalStateException("Magazyn z takim kodem już istnieje");
-        }
+        if (collision)
+            throw new IllegalStateException("Magazyn z takim kodem już istnieje");
 
-        if(code != null)
+
+        if (code != null)
             warehouse.setCode(code);
 
-        if(name != null)
+        if (name != null)
             warehouse.setName(name);
 
-        if(description != null)
+        if (description != null)
             warehouse.setDescription(description);
 
         warehouseRepository.save(warehouse);
