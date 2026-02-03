@@ -21,8 +21,18 @@ public class UnassignEmployeeFromWarehouse {
         return this;
     }
 
+    public UnassignEmployeeFromWarehouse configureEmployee(Long employeeId) {
+        this.employeeId = employeeId;
+        return this;
+    }
+
     public UnassignEmployeeFromWarehouse configureWarehouse(Warehouse warehouse) {
         this.warehouseId = warehouse.getId();
+        return this;
+    }
+
+    public UnassignEmployeeFromWarehouse configureWarehouse(Long warehouseId) {
+        this.warehouseId = warehouseId;
         return this;
     }
 }

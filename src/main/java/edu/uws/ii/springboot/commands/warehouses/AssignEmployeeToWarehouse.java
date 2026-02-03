@@ -22,8 +22,18 @@ public class AssignEmployeeToWarehouse {
         return this;
     }
 
+    public AssignEmployeeToWarehouse configureEmployee(Long employeeId) {
+        this.employeeId = employeeId;
+        return this;
+    }
+
     public AssignEmployeeToWarehouse configureWarehouse(Warehouse warehouse) {
         this.warehouseId = warehouse.getId();
+        return this;
+    }
+
+    public AssignEmployeeToWarehouse configureWarehouse(Long warehouseId) {
+        this.warehouseId = warehouseId;
         return this;
     }
 }

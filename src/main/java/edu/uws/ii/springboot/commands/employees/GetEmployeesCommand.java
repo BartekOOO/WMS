@@ -1,5 +1,6 @@
 package edu.uws.ii.springboot.commands.employees;
 
+import edu.uws.ii.springboot.models.Role;
 import edu.uws.ii.springboot.models.User;
 import edu.uws.ii.springboot.models.Warehouse;
 import lombok.Getter;
@@ -16,9 +17,15 @@ public class GetEmployeesCommand {
     private String phone;
     private String userName;
     private Long warehouseId;
+    private Role.Types role;
 
     public GetEmployeesCommand(){
 
+    }
+
+    public GetEmployeesCommand whereRoleEquals(Role.Types role){
+        this.role = role;
+        return this;
     }
 
     public GetEmployeesCommand whereFirstNameEquals(String firstName){

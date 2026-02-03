@@ -2,19 +2,20 @@ package edu.uws.ii.springboot.controllers;
 
 import edu.uws.ii.springboot.commands.customers.DeleteCustomerCommand;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.employees.GetEmployeesCommand;
 import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
 import edu.uws.ii.springboot.commands.sectors.DeleteSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.EditSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
-import edu.uws.ii.springboot.commands.warehouses.DeleteWarehouseCommand;
-import edu.uws.ii.springboot.commands.warehouses.EditWarehouseCommand;
-import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
-import edu.uws.ii.springboot.commands.warehouses.RegisterWarehouseCommand;
+import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.ICustomersService;
+import edu.uws.ii.springboot.interfaces.IEmployeesService;
+import edu.uws.ii.springboot.interfaces.IProductsService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Role;
 import edu.uws.ii.springboot.models.Sector;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +30,12 @@ public class WarehousesController {
 
     private final IWarehousesService warehousesService;
     private final ICustomersService customersService;
+    private final IEmployeesService  employeesService;
 
-    public WarehousesController(IWarehousesService warehousesService, ICustomersService customersService) {
+    public WarehousesController(IEmployeesService employeesService, IWarehousesService warehousesService, ICustomersService customersService) {
         this.warehousesService = warehousesService;
         this.customersService = customersService;
+        this.employeesService = employeesService;
     }
 
     @GetMapping("/GetWarehouses")
@@ -169,6 +172,12 @@ public class WarehousesController {
         model.addAttribute("employees", warehouse.getEmployees());
         model.addAttribute("sectors",  warehouse.getSectors());
 
+        var avaiableEmployees = employeesService.getEmployees(
+                new GetEmployeesCommand().whereRoleEquals(Role.Types.ROLE_PRACOWNIK)
+        );
+
+        model.addAttribute("avaiableEmployees", avaiableEmployees);
+
         model.addAttribute("command", cmd);
 
         return "app";
@@ -255,6 +264,47 @@ public class WarehousesController {
         } catch (Exception ex) {
             ra.addFlashAttribute("error",
                     "Nie udało się usunąć sektora. " + (ex.getMessage() != null ? ex.getMessage() : ""));
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+        }
+    }
+
+    @GetMapping("/AssignEmployee")
+    public String AssignEmployee(
+            RedirectAttributes ra,
+            @RequestParam Long warehouseId,
+            @RequestParam Long employeeId
+    ) {
+        try {
+            var cmd = new AssignEmployeeToWarehouse().configureWarehouse(warehouseId).configureEmployee(employeeId);
+            warehousesService.assignEmployee(cmd);
+
+            ra.addFlashAttribute("success", "Powiązano pracownika z magazynem.");
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error",
+                    "Nie udało się powiązać pracownika. " + (ex.getMessage() != null ? ex.getMessage() : ""));
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+        }
+    }
+
+
+    @GetMapping("/UnassignEmployee")
+    public String UnassignEmployee(
+            RedirectAttributes ra,
+            @RequestParam Long warehouseId,
+            @RequestParam Long employeeId
+    ) {
+        try {
+            var cmd = new UnassignEmployeeFromWarehouse().configureWarehouse(warehouseId).configureEmployee(employeeId);
+            warehousesService.unassignEmployee(cmd);
+
+            ra.addFlashAttribute("success", "Odwiązano pracownika od magazynem.");
+            return "redirect:/Warehouses/EditForm?id=" + warehouseId;
+
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error",
+                    "Nie udało się odwiązać pracownika. " + (ex.getMessage() != null ? ex.getMessage() : ""));
             return "redirect:/Warehouses/EditForm?id=" + warehouseId;
         }
     }
