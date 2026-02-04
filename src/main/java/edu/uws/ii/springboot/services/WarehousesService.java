@@ -78,9 +78,10 @@ public class WarehousesService implements IWarehousesService {
             throw new IllegalArgumentException("Nie podano nazwy magazynu");
 
         var magazineExistsCommand = new GetWarehousesCommand();
-        magazineExistsCommand.whereCodeEqualst(code);
+        magazineExistsCommand.whereCodeEqualst(code).whereIsNotArchival();
 
-        if(!this.getWarehouses(magazineExistsCommand).isEmpty())
+        var wh = this.getWarehouses(magazineExistsCommand);
+        if(!wh.isEmpty())
             throw new IllegalStateException("Magazyn z takim kodem już istnieje");
 
         if(command.getAddress() == null && (command.getAddressId() == null || command.getAddressId() == 0))
@@ -149,6 +150,9 @@ public class WarehousesService implements IWarehousesService {
 
         var existsCmd = new GetWarehousesCommand().whereCodeEqualst(code);
         var found = this.getWarehouses(existsCmd);
+
+        if(warehouse.isArchival())
+            throw new IllegalArgumentException("Magazyn jest archiwalny");
 
         var collision = found.stream()
                 .anyMatch(w -> w != null
@@ -318,10 +322,20 @@ public class WarehousesService implements IWarehousesService {
         if (type == SectorTypeEnum.UnloadingHub && warehouse.getUnloadingHub() != null)
             throw new IllegalStateException("Magazyn '" + warehouse.getCode() + "' już posiada sektor rozładunkowy");
 
-        var cmd = new GetSectorCommand().whereCodeEquals(code);
-        var usedCode = this.getSectors(cmd).isEmpty();
+        if(warehouse.isArchival())
+            throw new IllegalStateException("Magazyn tworzonego sektora jest archiwalny");
 
-        if(!usedCode)
+        var usedCode = false;
+        var cmd = new GetSectorCommand().whereCodeEquals(code);
+
+        for(var a : this.getSectors(cmd)){
+            if(!a.getWarehouse().isArchival()){
+                usedCode = true;
+                break;
+            }
+        }
+
+        if(usedCode)
             throw new IllegalStateException("Istnieje już sektor z takim kodem");
 
         sector.setWarehouse(warehouse);
@@ -369,6 +383,9 @@ public class WarehousesService implements IWarehousesService {
         if(containsDeliveries)
             throw new IllegalStateException("Sektor posiada stany towarowe");
 
+        if(sector.getWarehouse().isArchival())
+            throw new IllegalArgumentException("Magazyn tego sektora jet archiwalny");
+
         sectorsRepository.delete(sector);
     }
 
@@ -404,6 +421,9 @@ public class WarehousesService implements IWarehousesService {
 
         if(name != null)
             sectorToEdit.setName(name);
+
+        if(sectorToEdit.getWarehouse().isArchival())
+            throw new IllegalStateException("Magazyn tego sektora jest archiwalny");
 
         sectorsRepository.save(sectorToEdit);
 

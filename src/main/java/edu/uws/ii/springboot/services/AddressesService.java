@@ -2,6 +2,7 @@ package edu.uws.ii.springboot.services;
 
 import edu.uws.ii.springboot.commands.addresses.*;
 import edu.uws.ii.springboot.commands.customers.GetCustomersCommand;
+import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
 import edu.uws.ii.springboot.interfaces.IAddressesService;
 import edu.uws.ii.springboot.models.Address;
 import edu.uws.ii.springboot.repositories.IAddressesRepository;
@@ -9,6 +10,7 @@ import edu.uws.ii.springboot.repositories.ICustomersRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
 import edu.uws.ii.springboot.specifications.AddressSpecifications;
 import edu.uws.ii.springboot.specifications.CustomerSpecifications;
+import edu.uws.ii.springboot.specifications.WarehouseSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -126,6 +128,13 @@ public class AddressesService implements IAddressesService {
 
         if (!hasOtherActive)
             throw new IllegalStateException("Nie można usunąć ostatniego aktywnego adresu kontrahenta");
+
+
+        var warehouse = warehouseRepository.findAll(WarehouseSpecifications
+                .byFilter(new GetWarehousesCommand().whereAddressIdEquals(addressToDelete.getId())));
+
+        if(!warehouse.isEmpty())
+            throw new IllegalStateException("Na ten adres zarejestrowany jest magazyn");
 
         if (addressToDelete.isMainAddress()) {
             for (Address addr : customer.getAddresses()) {
