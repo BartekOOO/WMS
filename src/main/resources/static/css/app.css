@@ -1552,3 +1552,18 @@ select.form-input option:checked {
 :root{
   --cardBg: rgba(20,22,28,.92);
 }
+
+
+/* === Role tags (Employees list) === */
+.tag--admin{
+  background: rgba(0,0,0,.35);
+  border-color: rgba(255,255,255,.22);
+  color: rgba(255,255,255,.95);
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+
+.tag--worker{
+  background: rgba(170,180,200,.14);
+  border-color: rgba(210,220,240,.18);
+  color: rgba(255,255,255,.88);
+}

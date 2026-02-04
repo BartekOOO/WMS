@@ -1,0 +1,232 @@
+<div th:fragment="fragment" xmlns:th="http://www.w3.org/1999/xhtml">
+
+    <section class="card">
+        <header class="card-h">
+            <h2>
+                Pracownicy
+                <span class="badge" th:text="${employees != null ? #lists.size(employees) : 0}">0</span>
+            </h2>
+
+            <div class="card-actions">
+               <a class="chip" th:href="@{/Employees/AddForm}">Dodaj</a>
+            </div>
+        </header>
+
+        <div class="card-b">
+            <div class="table-wrap">
+
+                <div class="filters" id="empFilters"
+                     th:classappend="${
+                        param.id != null || param.firstName != null || param.lastName != null ||
+                        param.email != null || param.phone != null || param.userName != null ||
+                        param.warehouseId != null || param.role != null
+                        ? ' open' : ''
+                     }">
+
+                    <button class="chip chip--filterToggle" type="button" onclick="toggleEmpFilters()">
+                        🧰 Filtry
+                        <span class="filters__chev">▾</span>
+                    </button>
+
+                    <div class="filters__panel">
+                        <form method="get" th:action="@{/Employees/GetEmployees}" class="filters__form">
+                            <div class="filters-grid">
+
+                                <div class="field">
+                                    <label class="form-label" for="fFirst">Imię</label>
+                                    <input id="fFirst" class="form-input" name="firstName"
+                                           placeholder="np. Jan"
+                                           th:value="${param.firstName != null ? param.firstName[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fLast">Nazwisko</label>
+                                    <input id="fLast" class="form-input" name="lastName"
+                                           placeholder="np. Kowalski"
+                                           th:value="${param.lastName != null ? param.lastName[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fEmail">Email</label>
+                                    <input id="fEmail" class="form-input mono" name="email"
+                                           placeholder="np. a@b.com"
+                                           th:value="${param.email != null ? param.email[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fPhone">Telefon</label>
+                                    <input id="fPhone" class="form-input mono" name="phone"
+                                           placeholder="np. 555-444-333"
+                                           th:value="${param.phone != null ? param.phone[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fUser">Login</label>
+                                    <input id="fUser" class="form-input mono" name="userName"
+                                           placeholder="np. jkowalski"
+                                           th:value="${param.userName != null ? param.userName[0] : ''}"/>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fRole">Rola</label>
+                                    <select id="fRole" class="form-input" name="role">
+                                        <option value="">— wszystkie —</option>
+                                        <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_ADMIN}"
+                                                th:selected="${param.role != null && param.role[0] == 'ROLE_ADMIN'}">
+                                            Admin
+                                        </option>
+                                        <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_KIEROWNIK}"
+                                                th:selected="${param.role != null && param.role[0] == 'ROLE_KIEROWNIK'}">
+                                            Kierownik
+                                        </option>
+                                        <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_PRACOWNIK}"
+                                                th:selected="${param.role != null && param.role[0] == 'ROLE_PRACOWNIK'}">
+                                            Pracownik
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label class="form-label" for="fWh">Magazyn</label>
+                                    <select id="fWh" class="form-input" name="warehouseId">
+                                        <option value="">— wszystkie —</option>
+                                        <option th:each="w : ${warehouses}"
+                                                th:value="${w.id}"
+                                                th:selected="${param.warehouseId != null && param.warehouseId[0] == '' + w.id}"
+                                                th:text="${w.code + ' — ' + w.name}">
+                                            MAG-01 — Magazyn
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="filters-actions">
+                                <button class="chip chip--filter" type="submit">🔎 Filtruj</button>
+                                <a class="chip chip--muted" th:href="@{/Employees/GetEmployees}">Wyczyść</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                    <div class="alert-glass__icon">✓</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Sukces</div>
+                        <div class="alert-glass__msg" th:text="${success}">OK</div>
+                    </div>
+                </div>
+
+                <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Błąd</div>
+                        <div class="alert-glass__msg" th:text="${error}">Błąd</div>
+                    </div>
+                </div>
+
+                <table class="table table--fixed">
+                    <colgroup>
+                        <col style="width:36%">
+                        <col style="width:18%">
+                        <col style="width:22%">
+                        <col style="width:14%">
+                        <col style="width:10%">
+                    </colgroup>
+
+                    <thead>
+                    <tr>
+                        <th>Pracownik</th>
+                        <th>Konto</th>
+                        <th>Email</th>
+                        <th>Telefon</th>
+                        <th class="mono">Magazyny</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="e : ${employees}"
+                        th:with="
+                            u=${e.user},
+                            roles=${u != null ? u.roles : null},
+                            isAdmin=${roles != null && #lists.size(roles.?[type == T(edu.uws.ii.springboot.models.Role.Types).ROLE_ADMIN]) > 0},
+                            isManager=${roles != null && #lists.size(roles.?[type == T(edu.uws.ii.springboot.models.Role.Types).ROLE_KIEROWNIK]) > 0},
+                            roleLabel=${isAdmin ? 'Admin' : (isManager ? 'Kierownik' : 'Pracownik')},
+                            roleClass=${isAdmin ? 'tag--admin' : (isManager ? 'tag--gold' : 'tag--worker')}
+                        ">
+
+                        <td style="min-width:0">
+                            <div class="cell-main">
+                                <div class="title-row">
+                                    <div class="main-title"
+                                         th:text="${(e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '')}">
+                                        Jan Kowalski
+                                    </div>
+
+                                    <span class="tag" th:classappend="${' ' + roleClass}" th:text="${roleLabel}">Pracownik</span>
+                                </div>
+
+                                <div class="main-sub mono" th:text="${'#' + e.id}">#1</div>
+
+                                <div class="main-sub td-clip"
+                                     th:text="${e.warehouses != null && !#lists.isEmpty(e.warehouses) ? 'Przypisany do: ' + #strings.listJoin(e.warehouses.![code], ', ') : 'Nieprzypisany do magazynu'}">
+                                    —
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div th:if="${u != null}">
+                                <span class="mono" th:text="${u.username}">jkowalski</span>
+                            </div>
+                            <div th:if="${u == null}">
+                                <span class="tag tag--danger">Brak konta</span>
+                            </div>
+                        </td>
+
+                        <td class="mono td-clip" th:text="${e.email != null ? e.email : '—'}">a@b.com</td>
+
+                        <td class="mono td-clip"
+                            th:text="${e.phone != null && #strings.length(#strings.trim(e.phone)) > 0 ? e.phone : '—'}">—</td>
+
+                        <td class="mono"
+                            th:text="${e.warehouses != null ? #lists.size(e.warehouses) : 0}">
+                            0
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${employees == null || #lists.isEmpty(employees)}">
+                        <td colspan="5" style="padding:16px;color:rgba(255,255,255,0.65)">
+                            Brak pracowników.
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleEmpFilters(){
+            const root = document.getElementById('empFilters');
+            if(!root) return;
+            root.classList.toggle('open');
+            try {
+                localStorage.setItem('empFiltersOpen', root.classList.contains('open') ? '1' : '0');
+            } catch(e) {}
+        }
+
+        (function restoreEmpFilters(){
+            const root = document.getElementById('empFilters');
+            if(!root) return;
+            try {
+                if(localStorage.getItem('empFiltersOpen') === '1') root.classList.add('open');
+            } catch(e) {}
+        })();
+    </script>
+
+</div>
