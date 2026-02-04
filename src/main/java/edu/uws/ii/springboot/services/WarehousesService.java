@@ -11,6 +11,7 @@ import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
 import edu.uws.ii.springboot.interfaces.*;
 import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Role;
 import edu.uws.ii.springboot.models.Sector;
 import edu.uws.ii.springboot.models.Warehouse;
 import edu.uws.ii.springboot.repositories.*;
@@ -22,6 +23,7 @@ import org.hibernate.sql.results.graph.entity.internal.BatchEntityInsideEmbeddab
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.util.List;
 
 @Service
@@ -195,6 +197,18 @@ public class WarehousesService implements IWarehousesService {
         if (eOpt.isEmpty())
             throw new EntityNotFoundException("Pracownik o podanym identyfikatorze nie istnieje");
         var employee = eOpt.get();
+
+        boolean isEmployee = (employee.getUser() == null);
+
+        if (!isEmployee) {
+            var roles = employee.getUser().getRoles();
+
+            isEmployee = roles != null && roles.stream()
+                    .anyMatch(r -> r != null && r.getType() == Role.Types.ROLE_PRACOWNIK);
+        }
+
+        if (!isEmployee)
+            throw new IllegalStateException("Nie można przypisać: pracownik ma konto bez roli PRACOWNIK.");
 
         for (var w : employee.getWarehouses()) {
             if (w != null && w.getId() != null && w.getId().equals(warehouseId)) {
@@ -394,5 +408,19 @@ public class WarehousesService implements IWarehousesService {
         sectorsRepository.save(sectorToEdit);
 
     }
+
+
+    @Override
+    public Warehouse getWarehouseDetails(Long id) {
+        if (id == null || id == 0)
+            throw new IllegalArgumentException("Nie podano identyfikatora magazynu");
+
+        return this.getWarehouses(new GetWarehousesCommand().whereIdEquals(id))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                        "Magazyn o podanym identyfikatorze nie istnieje"));
+    }
+
 
 }

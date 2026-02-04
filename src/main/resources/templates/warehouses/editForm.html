@@ -1,288 +1,309 @@
-<div th:fragment="fragment" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="fragment"
+     xmlns:th="http://www.thymeleaf.org"
+     th:with="
+        cmd=${command},
+        whId=${command != null && command.id != null ? command.id : 0},
+        avail=${availableEmployees},
+        assignedIds=${assignedEmployeeIds}
+     ">
 
-    <section class="card">
-        <header class="card-h">
-            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                <h2 th:text="${command != null && command.code != null ? 'Magazyn: ' + command.code : 'Edycja magazynu'}">
-                    Edycja magazynu
-                </h2>
-                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: edycja</div>
-            </div>
+    <div class="wh-sections">
 
-            <div class="card-actions">
-                <a class="chip" th:href="@{/Warehouses/GetWarehouses}">Wróć</a>
-            </div>
-        </header>
-
-        <div class="card-b">
-
-            <div class="alert-glass alert-glass--success" th:if="${success != null}">
-                <div class="alert-glass__icon">✓</div>
-                <div class="alert-glass__content">
-                    <div class="alert-glass__title">Sukces</div>
-                    <div class="alert-glass__msg" th:text="${success}">Zapisano zmiany.</div>
+        <section class="card">
+            <header class="card-h">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <h2 th:text="${cmd != null && cmd.code != null ? 'Magazyn: ' + cmd.code : 'Edycja magazynu'}">
+                        Edycja magazynu
+                    </h2>
+                    <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Tryb: edycja</div>
                 </div>
-            </div>
 
-            <div class="alert-glass alert-glass--danger" th:if="${error != null}">
-                <div class="alert-glass__icon">!</div>
-                <div class="alert-glass__content">
-                    <div class="alert-glass__title">Nie udało się wykonać operacji</div>
-                    <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                <div class="card-actions">
+                    <a class="chip" th:href="@{/Warehouses/GetWarehouses}">Wróć</a>
                 </div>
+            </header>
+
+            <div class="card-b">
+
+                <div class="alert-glass alert-glass--success" th:if="${success != null}">
+                    <div class="alert-glass__icon">✓</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Sukces</div>
+                        <div class="alert-glass__msg" th:text="${success}">Zapisano zmiany.</div>
+                    </div>
+                </div>
+
+                <div class="alert-glass alert-glass--danger" th:if="${error != null}">
+                    <div class="alert-glass__icon">!</div>
+                    <div class="alert-glass__content">
+                        <div class="alert-glass__title">Nie udało się wykonać operacji</div>
+                        <div class="alert-glass__msg" th:text="${error}">Wystąpił błąd podczas zapisu.</div>
+                    </div>
+                </div>
+
+                <form th:object="${command}"
+                      th:action="@{/Warehouses/EditWarehouse}"
+                      method="post"
+                      style="display:grid;gap:14px"
+                      onsubmit="return lockSubmit(this)">
+
+                    <input type="hidden" th:field="*{id}"/>
+
+                    <div class="grid-2" style="min-width:0">
+                        <div style="min-width:0">
+                            <label class="form-label">Kod</label>
+                            <input class="form-input mono" th:field="*{code}" placeholder="np. MAG-01" required/>
+                            <div class="form-err" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+                        </div>
+
+                        <div style="min-width:0">
+                            <label class="form-label">Nazwa</label>
+                            <input class="form-input" th:field="*{name}" placeholder="np. Magazyn centralny" required/>
+                            <div class="form-err" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+
+                        <div style="grid-column:1 / -1;min-width:0">
+                            <label class="form-label">Opis (opcjonalnie)</label>
+                            <textarea class="form-input"
+                                      th:field="*{description}"
+                                      style="min-height:120px;resize:vertical"
+                                      placeholder="Krótki opis magazynu..."></textarea>
+                            <div class="form-err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between">
+                        <a class="chip chip--danger"
+                           th:if="${cmd != null && cmd.id != null}"
+                           th:href="@{/Warehouses/DeleteWarehouse(id=${cmd.id})}"
+                           onclick="return confirm('Na pewno usunąć magazyn?')">
+                            🗑 Usuń
+                        </a>
+
+                        <button class="chip chip--save" type="submit">💾 Zapisz zmiany</button>
+                    </div>
+
+                </form>
             </div>
+        </section>
 
-            <form th:object="${command}"
-                  th:action="@{/Warehouses/EditWarehouse}"
-                  method="post"
-                  style="display:grid;gap:14px"
-                  onsubmit="return lockSubmit(this)">
+        <section class="card address-panel address-panel--strong">
+            <header class="card-h">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <h2 style="font-size:1.05rem">Adres magazynu</h2>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                        <span class="badge">Tylko podgląd</span>
+                        <div style="color:rgba(255,255,255,0.80);font-size:.90rem">
+                            To jest adres przypisany do magazynu.
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-                <input type="hidden" th:field="*{id}"/>
+            <div class="card-b" style="display:grid;gap:12px;min-width:0">
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="placeholder" th:if="${address == null}">
+                    <div class="ph-title">Brak adresu</div>
+                    <div class="ph-sub">Ten magazyn nie ma przypisanego adresu.</div>
+                </div>
 
-                    <div>
+                <div th:if="${address != null}" class="addr-grid" style="min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+                    <div class="addr-field">
+                        <label class="form-label">Ulica</label>
+                        <input class="form-input form-input--ro" th:value="${address.street != null ? address.street : '—'}" readonly/>
+                    </div>
+
+                    <div class="addr-field">
                         <label class="form-label">Kod</label>
-                        <input class="form-input mono"
-                               th:field="*{code}"
-                               placeholder="np. MAG-01"
-                               required/>
-                        <div class="form-err"
-                             th:if="${#fields.hasErrors('code')}"
-                             th:errors="*{code}"></div>
+                        <input class="form-input form-input--ro" th:value="${address.zipCode != null ? address.zipCode : '—'}" readonly/>
                     </div>
 
-                    <div>
-                        <label class="form-label">Nazwa</label>
-                        <input class="form-input"
-                               th:field="*{name}"
-                               placeholder="np. Magazyn centralny"
-                               required/>
-                        <div class="form-err"
-                             th:if="${#fields.hasErrors('name')}"
-                             th:errors="*{name}"></div>
+                    <div class="addr-field">
+                        <label class="form-label">Miasto</label>
+                        <input class="form-input form-input--ro" th:value="${address.city != null ? address.city : '—'}" readonly/>
                     </div>
 
-                    <div style="grid-column:1 / -1">
-                        <label class="form-label">Opis (opcjonalnie)</label>
-                        <textarea class="form-input"
-                                  th:field="*{description}"
-                                  style="min-height:120px;resize:vertical"
-                                  placeholder="Krótki opis magazynu..."></textarea>
-                        <div class="form-err"
-                             th:if="${#fields.hasErrors('description')}"
-                             th:errors="*{description}"></div>
+                    <div class="addr-field">
+                        <label class="form-label">Województwo</label>
+                        <input class="form-input form-input--ro" th:value="${address.state != null ? address.state : '—'}" readonly/>
                     </div>
 
+                    <div class="addr-field" style="grid-column:1 / -1">
+                        <label class="form-label">Kraj</label>
+                        <input class="form-input form-input--ro"
+                               th:value="${address.country != null && #strings.length(#strings.trim(address.country)) > 0 ? address.country : '—'}"
+                               readonly/>
+                    </div>
                 </div>
 
-                <div class="form-actions">
-                    <a class="chip chip--danger"
-                       th:if="${command != null && command.id != null}"
-                       th:href="@{/Warehouses/DeleteWarehouse(id=${command.id})}"
-                       onclick="return confirm('Na pewno usunąć magazyn?')">
-                        🗑 Usuń
-                    </a>
+            </div>
+        </section>
 
-                    <button class="chip chip--save" type="submit">
-                        💾 Zapisz zmiany
+        <section class="card">
+            <header class="card-h">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <h2>Sektory</h2>
+                    <div style="color:rgba(255,255,255,0.65);font-size:.92rem">
+                        Lista sektorów przypisanych do magazynu
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button type="button" class="chip chip--filter"
+                            th:disabled="${whId == 0}"
+                            onclick="openSectorCreate()">
+                        ➕ Dodaj sektor
                     </button>
                 </div>
+            </header>
 
-            </form>
-        </div>
-    </section>
+            <div class="card-b" style="min-width:0">
 
-    <section class="card address-panel address-panel--strong" style="margin-top:18px">
-        <header class="card-h">
-            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                <h2 style="font-size:1.05rem">Adres magazynu</h2>
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                    <span class="badge">Tylko podgląd</span>
-                    <div style="color:rgba(255,255,255,0.80);font-size:.90rem">
-                        To jest adres przypisany do magazynu.
+                <div class="placeholder" th:if="${whId == 0}">
+                    <div class="ph-title">Najpierw zapisz magazyn</div>
+                    <div class="ph-sub">Sektory możesz dodawać dopiero po zapisaniu magazynu.</div>
+                </div>
+
+                <div class="table-wrap" th:if="${whId != 0}" style="min-width:0">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Kod</th>
+                            <th>Nazwa</th>
+                            <th>Typ</th>
+                            <th style="width:220px">Akcje</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr th:if="${sectors == null || #lists.isEmpty(sectors)}">
+                            <td colspan="4">
+                                <div class="placeholder" style="margin:6px 0">
+                                    <div class="ph-title">Brak sektorów</div>
+                                    <div class="ph-sub">Dodaj sektor przyciskiem „Dodaj sektor”.</div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:each="s : ${sectors}">
+                            <td class="mono" th:text="${s.code}">S-01</td>
+                            <td th:text="${s.name}">Składowanie</td>
+                            <td>
+                                <span th:class="${'tag ' + (s.type == T(edu.uws.ii.springboot.enums.SectorTypeEnum).LoadingHub ? 'tag--loadingHub' : (s.type == T(edu.uws.ii.springboot.enums.SectorTypeEnum).UnloadingHub ? 'tag--unloadingHub' : 'tag--sector'))}"
+                                      th:text="${s.type != null ? s.type.description : '—'}">—</span>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                                    <button type="button"
+                                            class="chip chip--muted chip--sm"
+                                            onclick="openSectorEdit(this)"
+                                            th:attr="data-id=${s.id},data-code=${s.code},data-name=${s.name},data-type=${s.type != null ? s.type : ''}">
+                                        ✏️ Edytuj
+                                    </button>
+
+                                    <a class="chip chip--danger chip--sm"
+                                       th:href="@{/Warehouses/DeleteSector(warehouseId=${whId}, id=${s.id})}"
+                                       onclick="return confirm('Usunąć sektor?')">
+                                        🗑 Usuń
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <header class="card-h">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <h2>
+                        Przypisani pracownicy
+                        <span class="badge" th:text="${employees != null ? #lists.size(employees) : 0}">0</span>
+                    </h2>
+                    <div style="color:rgba(255,255,255,0.65);font-size:.92rem">
+                        Osoby przypięte do tego magazynu
                     </div>
                 </div>
-            </div>
-        </header>
 
-        <div class="card-b" style="display:grid;gap:12px">
+                <div class="card-actions">
+                    <button type="button"
+                            class="chip chip--filter"
+                            onclick="openEmployeeModal()"
+                            th:disabled="${whId == 0}">
+                        ➕ Przypisz pracownika
+                    </button>
+                </div>
+            </header>
 
-            <div class="placeholder" th:if="${address == null}">
-                <div class="ph-title">Brak adresu</div>
-                <div class="ph-sub">Ten magazyn nie ma przypisanego adresu.</div>
-            </div>
+            <div class="card-b" style="min-width:0">
 
-            <div th:if="${address != null}" class="addr-grid">
-                <div class="addr-field">
-                    <label class="form-label">Ulica</label>
-                    <input class="form-input form-input--ro" th:value="${address.street}" readonly/>
+                <div class="placeholder" th:if="${whId == 0}">
+                    <div class="ph-title">Najpierw zapisz magazyn</div>
+                    <div class="ph-sub">Pracowników możesz przypinać dopiero po zapisaniu magazynu.</div>
                 </div>
 
-                <div class="addr-field">
-                    <label class="form-label">Kod</label>
-                    <input class="form-input form-input--ro" th:value="${address.zipCode}" readonly/>
-                </div>
+                <div class="table-wrap" th:if="${whId != 0}" style="min-width:0">
+                    <table class="table table--fixed">
+                        <colgroup>
+                            <col style="width:32%">
+                            <col style="width:36%">
+                            <col style="width:16%">
+                            <col style="width:220px">
+                        </colgroup>
 
-                <div class="addr-field">
-                    <label class="form-label">Miasto</label>
-                    <input class="form-input form-input--ro" th:value="${address.city}" readonly/>
-                </div>
+                        <thead>
+                        <tr>
+                            <th>Pracownik</th>
+                            <th>Email</th>
+                            <th>Telefon</th>
+                            <th>Akcje</th>
+                        </tr>
+                        </thead>
 
-                <div class="addr-field">
-                    <label class="form-label">Województwo</label>
-                    <input class="form-input form-input--ro" th:value="${address.state != null ? address.state : '—'}" readonly/>
-                </div>
+                        <tbody>
+                        <tr th:if="${employees == null || #lists.isEmpty(employees)}">
+                            <td colspan="4">
+                                <div class="placeholder" style="margin:6px 0">
+                                    <div class="ph-title">Brak pracowników</div>
+                                    <div class="ph-sub">Kliknij „Przypisz pracownika”, aby kogoś dodać.</div>
+                                </div>
+                            </td>
+                        </tr>
 
-                <div class="addr-field addr-field--full">
-                    <label class="form-label">Kraj</label>
-                    <input class="form-input form-input--ro" th:value="${address.country}" readonly/>
-                </div>
-            </div>
+                        <tr th:each="e : ${employees}">
+                            <td style="min-width:0">
+                                <div class="cell-main">
+                                    <div class="main-title"
+                                         th:text="${(e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '')}">
+                                        Jan Kowalski
+                                    </div>
+                                    <div class="main-sub mono" th:text="${'#' + e.id}">#1</div>
+                                </div>
+                            </td>
 
-        </div>
-    </section>
+                            <td class="mono td-clip" th:text="${e.email != null ? e.email : '—'}">a@b.com</td>
+                            <td class="td-clip"
+                                th:text="${e.phone != null && #strings.length(#strings.trim(e.phone)) > 0 ? e.phone : '—'}">—</td>
 
-    <section class="card" style="margin-top:18px">
-        <header class="card-h">
-            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                <h2>Sektory</h2>
-                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Lista sektorów przypisanych do magazynu</div>
-            </div>
-
-            <div class="card-actions">
-                <button type="button" class="chip chip--filter"
-                        th:disabled="${command == null || command.id == null}"
-                        onclick="openSectorCreate()">
-                    ➕ Dodaj sektor
-                </button>
-            </div>
-        </header>
-
-        <div class="card-b">
-
-            <div class="placeholder" th:if="${command == null || command.id == null}">
-                <div class="ph-title">Najpierw zapisz magazyn</div>
-                <div class="ph-sub">Sektory możesz dodawać dopiero po zapisaniu magazynu.</div>
-            </div>
-
-            <div class="table-wrap" th:if="${command != null && command.id != null}">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Kod</th>
-                        <th>Nazwa</th>
-                        <th>Typ</th>
-                        <th style="width:220px">Akcje</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    <tr th:if="${sectors == null || #lists.isEmpty(sectors)}">
-                        <td colspan="4">
-                            <div class="placeholder" style="margin:6px 0">
-                                <div class="ph-title">Brak sektorów</div>
-                                <div class="ph-sub">Dodaj sektor przyciskiem „Dodaj sektor”.</div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:each="s : ${sectors}">
-                        <td class="mono" th:text="${s.code}">S-01</td>
-                        <td th:text="${s.name}">Składowanie</td>
-                        <td>
-                            <span th:if="${s.type != null}"
-                                  th:class="${'tag ' + (s.type.name() == 'LoadingHub' ? 'tag--loadingHub' : (s.type.name() == 'UnloadingHub' ? 'tag--unloadingHub' : 'tag--sector'))}"
-                                  th:text="${s.type.description}">
-                                Sektor
-                            </span>
-                            <span th:if="${s.type == null}" class="tag tag--sector">—</span>
-                        </td>
-                        <td>
-                            <div style="display:flex;gap:10px;flex-wrap:wrap">
-                                <button type="button"
-                                        class="chip chip--muted chip--sm"
-                                        onclick="openSectorEdit(this)"
-                                        th:attr="data-id=${s.id},data-code=${s.code},data-name=${s.name},data-type=${s.type != null ? s.type.name() : ''}">
-                                    ✏️ Edytuj
-                                </button>
-
+                            <td>
                                 <a class="chip chip--danger chip--sm"
-                                   th:href="@{/Warehouses/DeleteSector(warehouseId=${command.id}, id=${s.id})}"
-                                   onclick="return confirm('Usunąć sektor?')">
-                                    🗑 Usuń
+                                   th:href="@{/Warehouses/UnassignEmployee(warehouseId=${whId}, employeeId=${e.id})}"
+                                   onclick="return confirm('Odpiąć pracownika od magazynu?')">
+                                    ⛓️‍💥 Odepnij
                                 </a>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                    </tbody>
-                </table>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="card" style="margin-top:18px">
-        <header class="card-h">
-            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                <h2>Przypisani pracownicy</h2>
-                <div style="color:rgba(255,255,255,0.65);font-size:.92rem">Osoby przypięte do tego magazynu</div>
-            </div>
-
-            <div class="card-actions">
-                <button type="button" class="chip chip--filter" onclick="openEmployeeModal()"
-                        th:disabled="${command == null || command.id == null}">
-                    ➕ Przypisz pracownika
-                </button>
-            </div>
-        </header>
-
-        <div class="card-b">
-            <div class="table-wrap">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Pracownik</th>
-                        <th>Email</th>
-                        <th>Telefon</th>
-                        <th style="width:220px">Akcje</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    <tr th:if="${employees == null || #lists.isEmpty(employees)}">
-                        <td colspan="4">
-                            <div class="placeholder" style="margin:6px 0">
-                                <div class="ph-title">Brak pracowników</div>
-                                <div class="ph-sub">Przypisz pracownika przyciskiem „Przypisz pracownika”.</div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:each="e : ${employees}">
-                        <td>
-                            <div class="cell-main">
-                                <div class="main-title" th:text="${e.firstName + ' ' + e.lastName}">Jan Kowalski</div>
-                                <div class="main-sub mono" th:text="${'#' + e.id}">#1</div>
-                            </div>
-                        </td>
-                        <td class="mono" th:text="${e.email}">a@b.com</td>
-                        <td th:text="${e.phone != null ? e.phone : '—'}">—</td>
-                        <td>
-                            <a class="chip chip--danger chip--sm"
-                               th:href="@{/Warehouses/DetachEmployee(warehouseId=${command.id}, employeeId=${e.id})}"
-                               onclick="return confirm('Odpiąć pracownika od magazynu?')">
-                                ⛓️‍💥 Odepnij
-                            </a>
-                        </td>
-                    </tr>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
+    </div>
 
     <div class="modal" id="sectorModal" aria-hidden="true">
         <div class="modal__backdrop" onclick="closeModal('sectorModal')"></div>
@@ -299,7 +320,7 @@
                   class="modal__body"
                   onsubmit="return lockSubmit(this)">
 
-                <input type="hidden" name="warehouseId" th:value="${command.id}"/>
+                <input type="hidden" name="warehouseId" th:value="${whId}"/>
                 <input type="hidden" name="id" id="sectorId"/>
 
                 <div class="field">
@@ -323,32 +344,78 @@
     <div class="modal" id="employeeModal" aria-hidden="true">
         <div class="modal__backdrop" onclick="closeModal('employeeModal')"></div>
 
-        <div class="modal__dialog" role="dialog" aria-modal="true">
+        <div class="modal__dialog modal__dialog--tall"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="employeeModalTitle">
+
             <div class="modal__head">
-                <div class="modal__title">Przypisz pracownika</div>
+                <div class="modal__title" id="employeeModalTitle" style="display:flex;gap:10px;align-items:center;min-width:0">
+                    Przypisz pracownika
+                    <span class="badge" th:text="${avail != null ? #lists.size(avail) : 0}">0</span>
+                </div>
                 <button type="button" class="chip chip--muted chip--sm" onclick="closeModal('employeeModal')">✖</button>
             </div>
 
-            <div class="modal__body">
+            <div class="modal__body modal__body--flex" style="min-width:0">
 
                 <div class="field">
                     <label class="form-label">Szukaj</label>
-                    <input class="form-input" id="empQuery" placeholder="Imię / nazwisko / email..."/>
-                    <div class="form-hint">
-                        Lista z endpointa (jeszcze nie istnieje): <span class="mono" id="empEndpointHint"></span>
+                    <input class="form-input" id="empQuery"
+                           placeholder="Imię / nazwisko / email..."
+                           oninput="filterEmployeesPick()"/>
+                    <div class="form-hint" style="color:rgba(255,255,255,.65)">
+                        widocznych: <span class="mono" id="empVisibleCount">0</span>
                     </div>
                 </div>
 
-                <div class="modal__actions" style="justify-content:space-between">
-                    <button type="button" class="chip chip--muted" onclick="loadEmployees()">🔄 Odśwież</button>
+                <div class="switch-row">
+                    <span style="color:rgba(255,255,255,.85)">Pokaż już przypisanych</span>
+                    <input id="empShowAssigned" type="checkbox" onchange="filterEmployeesPick()"/>
+                </div>
+
+                <div id="empList" class="pick-list pick-list--scroll">
+
+                    <div class="placeholder" th:if="${avail == null || #lists.isEmpty(avail)}">
+                        <div class="ph-title">Brak dostępnych pracowników</div>
+                        <div class="ph-sub">Nie ma kogo przypisać (albo filtr roli nie zwraca wyników).</div>
+                    </div>
+
+                    <div th:if="${avail != null && !#lists.isEmpty(avail)}"
+                         th:each="e : ${avail}"
+                         class="pick-item"
+                         th:with="assigned=${assignedIds != null && e.id != null && #sets.contains(assignedIds, e.id)}"
+                         th:attr="
+                            data-assigned=${assigned ? '1' : '0'},
+                            data-search=${#strings.toLowerCase((e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '') + ' ' + (e.email != null ? e.email : ''))}
+                         ">
+
+                        <div class="pick-main" style="min-width:0">
+                            <div class="pick-title"
+                                 th:text="${(e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '')}">
+                                Jan Kowalski
+                            </div>
+                            <div class="pick-sub mono td-clip"
+                                 th:text="${e.email != null ? e.email : '—'}">a@b.com</div>
+                        </div>
+
+                        <div th:if="${assigned}">
+                            <span class="tag tag--sector">Już przypisany</span>
+                        </div>
+
+                        <a th:if="${!assigned}"
+                           class="chip chip--save chip--sm"
+                           th:href="@{/Warehouses/AssignEmployee(warehouseId=${whId}, employeeId=${e.id})}"
+                           onclick="return onAssignEmployee(this)">
+                            ➕ Przypisz
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="modal__actions modal__actions--sticky">
+                    <button type="button" class="chip chip--muted" onclick="clearEmployeeFilter()">🧹 Wyczyść filtr</button>
                     <button type="button" class="chip chip--muted" onclick="closeModal('employeeModal')">Zamknij</button>
-                </div>
-
-                <div id="empList" class="pick-list">
-                    <div class="placeholder">
-                        <div class="ph-title">Wpisz frazę i kliknij „Odśwież”</div>
-                        <div class="ph-sub">Potem kliknij „Przypisz” przy wybranej osobie.</div>
-                    </div>
                 </div>
 
             </div>
@@ -356,188 +423,163 @@
     </div>
 
     <script th:inline="javascript">
-        const WAREHOUSE_ID = /*[[${command != null ? command.id : 0}]]*/ 0;
+        // Guard: jeśli fragment jest renderowany ponownie (np. po redirectach / partialach), nie duplikuj definicji
+        if (!window.__warehouseEditFormInit) {
+          window.__warehouseEditFormInit = true;
 
-        const SECTOR_UPSERT_URL   = /*[[@{/Warehouses/UpsertSector}]]*/ '/Warehouses/UpsertSector';
-        const EMPLOYEE_LOOKUP_URL = /*[[@{/Employees/Lookup}]]*/ '/Employees/Lookup';
-        const EMPLOYEE_ATTACH_URL = /*[[@{/Warehouses/AttachEmployee}]]*/ '/Warehouses/AttachEmployee';
+          window.qs = function(sel, root = document){ return root.querySelector(sel); };
+          window.qsa = function(sel, root = document){ return Array.from(root.querySelectorAll(sel)); };
 
-        const CSRF_HEADER = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ '';
-        const CSRF_TOKEN  = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
-
-        function openModal(id){
+          window.openModal = function(id){
             const m = document.getElementById(id);
-            if(!m) return;
+            if (!m) return;
             m.classList.add('open');
-            m.setAttribute('aria-hidden','false');
-        }
+            m.setAttribute('aria-hidden', 'false');
+          };
 
-        function closeModal(id){
+          window.closeModal = function(id){
             const m = document.getElementById(id);
-            if(!m) return;
+            if (!m) return;
             m.classList.remove('open');
-            m.setAttribute('aria-hidden','true');
-        }
+            m.setAttribute('aria-hidden', 'true');
+          };
 
-        document.addEventListener('keydown', (e)=>{
-            if(e.key === 'Escape'){
-                closeModal('sectorModal');
-                closeModal('employeeModal');
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              window.closeModal('sectorModal');
+              window.closeModal('employeeModal');
             }
-        });
+          });
 
-        function lockSubmit(form){
-            try{
-                const btn = form.querySelector('button[type="submit"]');
-                if(btn){
-                    btn.disabled = true;
-                    btn.textContent = '⏳ Zapisuję...';
-                }
-            }catch(e){}
+          window.lockSubmit = function(form){
+            try {
+              const btn = window.qs('button[type="submit"]', form);
+              if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Zapisuję...';
+              }
+            } catch (e) {}
             return true;
-        }
+          };
 
-        function openSectorCreate(){
-            if(!WAREHOUSE_ID || Number(WAREHOUSE_ID) <= 0){
-                alert('Najpierw zapisz magazyn, żeby dodawać sektory.');
-                return;
+          // ===== SEKTORY =====
+          window.openSectorCreate = function(){
+            const WAREHOUSE_ID = Number(/*[[${whId}]]*/ 0);
+            if (!WAREHOUSE_ID || WAREHOUSE_ID <= 0) {
+              alert('Najpierw zapisz magazyn, żeby dodawać sektory.');
+              return;
             }
+            const title = document.getElementById('sectorModalTitle');
+            if (title) title.textContent = 'Dodaj sektor';
 
-            document.getElementById('sectorModalTitle').textContent = 'Dodaj sektor';
-            const f = document.getElementById('sectorForm');
-            if(f) f.action = SECTOR_UPSERT_URL;
-
-            document.getElementById('sectorId').value = '';
-            document.getElementById('sectorCode').value = '';
-            document.getElementById('sectorName').value = '';
-
+            const idEl = document.getElementById('sectorId');
+            const codeEl = document.getElementById('sectorCode');
+            const nameEl = document.getElementById('sectorName');
             const typeSel = document.getElementById('sectorType');
-            if(typeSel){
-                const opts = Array.from(typeSel.querySelectorAll('option')).filter(o => o.value);
-                typeSel.value = (opts[0]?.value || '');
-            }
 
-            openModal('sectorModal');
-        }
+            if (idEl) idEl.value = '';
+            if (codeEl) codeEl.value = '';
+            if (nameEl) nameEl.value = '';
+            if (typeSel) typeSel.value = 'Normal';
 
-        function openSectorEdit(btn){
-            const id   = btn.getAttribute('data-id') || '';
-            const code = btn.getAttribute('data-code') || '';
-            const name = btn.getAttribute('data-name') || '';
-            const type = btn.getAttribute('data-type') || '';
+            window.openModal('sectorModal');
+          };
 
-            document.getElementById('sectorModalTitle').textContent = 'Edytuj sektor';
-            const f = document.getElementById('sectorForm');
-            if(f) f.action = SECTOR_UPSERT_URL;
+          window.openSectorEdit = function(btn){
+            const title = document.getElementById('sectorModalTitle');
+            if (title) title.textContent = 'Edytuj sektor';
 
-            document.getElementById('sectorId').value = id;
-            document.getElementById('sectorCode').value = code;
-            document.getElementById('sectorName').value = name;
+            const id   = btn?.getAttribute('data-id') || '';
+            const code = btn?.getAttribute('data-code') || '';
+            const name = btn?.getAttribute('data-name') || '';
+            const type = btn?.getAttribute('data-type') || '';
 
+            const idEl = document.getElementById('sectorId');
+            const codeEl = document.getElementById('sectorCode');
+            const nameEl = document.getElementById('sectorName');
             const typeSel = document.getElementById('sectorType');
-            if(typeSel){
-                typeSel.value = type || typeSel.value;
+
+            if (idEl) idEl.value = id;
+            if (codeEl) codeEl.value = code;
+            if (nameEl) nameEl.value = name;
+            if (typeSel && type) typeSel.value = type;
+
+            window.openModal('sectorModal');
+          };
+
+          window.openEmployeeModal = function(){
+            const WAREHOUSE_ID = Number(/*[[${whId}]]*/ 0);
+            if (!WAREHOUSE_ID || WAREHOUSE_ID <= 0) {
+              alert('Najpierw zapisz magazyn, żeby przypisywać pracowników.');
+              return;
             }
 
-            openModal('sectorModal');
-        }
+            const q = document.getElementById('empQuery');
+            if (q) q.value = '';
 
-        function openEmployeeModal(){
-            if(!WAREHOUSE_ID || Number(WAREHOUSE_ID) <= 0){
-                alert('Najpierw zapisz magazyn, żeby przypisywać pracowników.');
-                return;
-            }
+            const show = document.getElementById('empShowAssigned');
+            if (show) show.checked = false;
 
-            document.getElementById('empEndpointHint').textContent =
-                EMPLOYEE_LOOKUP_URL + '?query=...&warehouseId=' + WAREHOUSE_ID;
-            openModal('employeeModal');
-        }
+            window.openModal('employeeModal');
+            window.filterEmployeesPick();
+          };
 
-        async function loadEmployees(){
-            const q = (document.getElementById('empQuery')?.value || '').trim();
+          window.clearEmployeeFilter = function(){
+            const q = document.getElementById('empQuery');
+            if (q) q.value = '';
+            const show = document.getElementById('empShowAssigned');
+            if (show) show.checked = false;
+            window.filterEmployeesPick();
+          };
+
+          window.filterEmployeesPick = function(){
+            const query = (document.getElementById('empQuery')?.value || '').trim().toLowerCase();
+            const showAssigned = !!document.getElementById('empShowAssigned')?.checked;
+
             const list = document.getElementById('empList');
-            if(!list) return;
+            if (!list) return;
 
-            list.innerHTML = `
-              <div class="placeholder">
-                <div class="ph-title">Ładuję…</div>
-                <div class="ph-sub">Pobieram listę pracowników.</div>
-              </div>`;
+            const items = window.qsa('.pick-item', list);
+            let visible = 0;
 
-            try{
-                const url = EMPLOYEE_LOOKUP_URL
-                  + '?query=' + encodeURIComponent(q)
-                  + '&warehouseId=' + encodeURIComponent(WAREHOUSE_ID);
+            for (const el of items) {
+              const s = (el.getAttribute('data-search') || '');
+              const assigned = (el.getAttribute('data-assigned') || '0') === '1';
 
-                const res = await fetch(url, { headers: { 'Accept':'application/json' } });
-                if(!res.ok) throw new Error('HTTP ' + res.status);
+              const okQuery = !query || s.includes(query);
+              const okAssigned = showAssigned || !assigned;
 
-                const data = await res.json();
-                renderEmployeesPick(data || []);
-            }catch(err){
-                list.innerHTML = `
-                  <div class="alert-glass alert-glass--danger">
-                    <div class="alert-glass__icon">!</div>
-                    <div class="alert-glass__content">
-                      <div class="alert-glass__title">Nie udało się pobrać listy</div>
-                      <div class="alert-glass__msg">Endpoint nie istnieje albo zwrócił błąd. (${String(err)})</div>
-                    </div>
-                  </div>`;
-            }
-        }
-
-        function renderEmployeesPick(items){
-            const list = document.getElementById('empList');
-            if(!list) return;
-
-            if(!items || items.length === 0){
-                list.innerHTML = `
-                  <div class="placeholder">
-                    <div class="ph-title">Brak wyników</div>
-                    <div class="ph-sub">Zmień frazę wyszukiwania.</div>
-                  </div>`;
-                return;
+              const ok = okQuery && okAssigned;
+              el.style.display = ok ? '' : 'none';
+              if (ok) visible++;
             }
 
-            list.innerHTML = items.map(e => `
-              <div class="pick-item">
-                <div class="pick-main">
-                  <div class="pick-title">${escapeHtml((e.firstName||'') + ' ' + (e.lastName||''))}</div>
-                  <div class="pick-sub mono">${escapeHtml(e.email || '')}</div>
-                </div>
-                <button type="button" class="chip chip--save chip--sm"
-                        onclick="attachEmployee(${Number(e.id)})">
-                  ➕ Przypisz
-                </button>
-              </div>
-            `).join('');
-        }
+            const cnt = document.getElementById('empVisibleCount');
+            if (cnt) cnt.textContent = String(visible);
 
-        async function attachEmployee(employeeId){
-            try{
-                const fd = new FormData();
-                fd.append('warehouseId', String(WAREHOUSE_ID));
-                fd.append('employeeId', String(employeeId));
+            const existing = window.qs('.placeholder.__dyn', list);
+            if (existing) existing.remove();
 
-                const headers = {};
-                if(CSRF_HEADER && CSRF_TOKEN) headers[CSRF_HEADER] = CSRF_TOKEN;
-
-                const res = await fetch(EMPLOYEE_ATTACH_URL, { method:'POST', body: fd, headers });
-                if(!res.ok) throw new Error('HTTP ' + res.status);
-
-                window.location.reload();
-            }catch(err){
-                alert('Nie udało się przypisać. ' + String(err));
+            if (items.length > 0 && visible === 0) {
+              const ph = document.createElement('div');
+              ph.className = 'placeholder __dyn';
+              ph.innerHTML = `
+                <div class="ph-title">Brak wyników</div>
+                <div class="ph-sub">Zmień frazę lub włącz „Pokaż już przypisanych”.</div>
+              `;
+              list.prepend(ph);
             }
-        }
+          };
 
-        function escapeHtml(s){
-            return String(s)
-              .replaceAll('&','&amp;')
-              .replaceAll('<','&lt;')
-              .replaceAll('>','&gt;')
-              .replaceAll('"','&quot;')
-              .replaceAll("'","&#039;");
+          window.onAssignEmployee = function(a){
+            if (!confirm('Przypisać pracownika do magazynu?')) return false;
+            try {
+              a.classList.add('is-busy');
+              a.textContent = '⏳ Przypisuję...';
+              a.style.pointerEvents = 'none';
+            } catch (e) {}
+            return true;
+          };
         }
     </script>
 

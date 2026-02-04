@@ -22,4 +22,6 @@ public interface IWarehousesService {
     List<Sector> getSectors(GetSectorCommand command);
     void deleteSector(DeleteSectorCommand command);
     void editSector(EditSectorCommand command);
+
+    Warehouse getWarehouseDetails(Long id);
 }

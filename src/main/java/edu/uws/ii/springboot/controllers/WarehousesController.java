@@ -7,6 +7,7 @@ import edu.uws.ii.springboot.commands.products.GetProductsCommand;
 import edu.uws.ii.springboot.commands.products.units.DeleteUnitCommand;
 import edu.uws.ii.springboot.commands.sectors.DeleteSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.EditSectorCommand;
+import edu.uws.ii.springboot.commands.sectors.GetSectorCommand;
 import edu.uws.ii.springboot.commands.sectors.RegisterSectorCommand;
 import edu.uws.ii.springboot.commands.warehouses.*;
 import edu.uws.ii.springboot.enums.SectorTypeEnum;
@@ -15,6 +16,7 @@ import edu.uws.ii.springboot.interfaces.IEmployeesService;
 import edu.uws.ii.springboot.interfaces.IProductsService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
 import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Employee;
 import edu.uws.ii.springboot.models.Role;
 import edu.uws.ii.springboot.models.Sector;
 import org.springframework.stereotype.Controller;
@@ -160,23 +162,39 @@ public class WarehousesController {
     }
 
     @GetMapping("/EditForm")
-    public String EditForm(@RequestParam("id") Long id, Model model, RedirectAttributes ra) {
+    public String EditForm(@RequestParam("id") Long id, Model model) {
 
         model.addAttribute("title", "WMS • Edycja magazynu");
         model.addAttribute("content", "warehouses/editForm :: fragment");
 
-        var warehouse = warehousesService.getWarehouses(new GetWarehousesCommand().whereIdEquals(id)).getFirst();
+        var warehouse = warehousesService.getWarehouseDetails(id);
+
         var cmd = new EditWarehouseCommand().configureWarehouse(warehouse);
 
-        model.addAttribute("address", warehouse.getAddress());
-        model.addAttribute("employees", warehouse.getEmployees());
-        model.addAttribute("sectors",  warehouse.getSectors());
+        var employeesList = (warehouse.getEmployees() == null)
+                ? java.util.List.<Employee>of()
+                : warehouse.getEmployees().stream().filter(e -> e != null).toList();
 
-        var avaiableEmployees = employeesService.getEmployees(
+        var assignedIds = employeesList.stream()
+                .map(Employee::getId)
+                .filter(x -> x != null)
+                .collect(java.util.stream.Collectors.toSet());
+
+        model.addAttribute("address", warehouse.getAddress());
+        model.addAttribute("employees", employeesList);
+        model.addAttribute("assignedEmployeeIds", assignedIds);
+
+        var sectors = warehousesService.getSectors(
+                new GetSectorCommand().whereWarehouseEquals(warehouse)
+        );
+        model.addAttribute("sectors", sectors);
+
+
+        var availableEmployees = employeesService.getEmployees(
                 new GetEmployeesCommand().whereRoleEquals(Role.Types.ROLE_PRACOWNIK)
         );
 
-        model.addAttribute("avaiableEmployees", avaiableEmployees);
+        model.addAttribute("availableEmployees", availableEmployees);
 
         model.addAttribute("command", cmd);
 

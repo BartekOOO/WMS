@@ -1,3 +1,6 @@
+html { overflow-y: scroll; }
+
+
 :root{
   --bg1:#0b1020;
   --bg2:#0a0f1a;
@@ -1472,4 +1475,80 @@ select.form-input option:checked {
 .wh-sections > .card{
   width: 100%;
   min-width: 0;
+}
+
+
+/* ===== Fix: rozjazdy grid/flex przy długich stringach (email itp.) ===== */
+.main, .content, .card, .card-b, .table-wrap { min-width: 0; }
+
+/* ===== Fix: modal ma się mieścić + scroll wewnątrz ===== */
+.modal { overflow: auto; } /* jak dialog większy niż ekran, to scrolluje się modal */
+
+.modal__dialog--tall{
+  display:flex;
+  flex-direction:column;
+  max-height: calc(100vh - 120px);
+}
+
+.modal__body--scroll{
+  min-height:0;        /* krytyczne dla flex/overflow */
+  overflow: auto;
+}
+
+/* scroll tylko listy (żeby stopka była zawsze widoczna) */
+.pick-list--scroll{
+  max-height: 50vh;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* sticky akcje na dole modala */
+.modal__actions--sticky{
+  position: sticky;
+  bottom: 0;
+  padding-top: 10px;
+  background: rgba(20,22,28,.92);
+  backdrop-filter: blur(10px);
+}
+
+/* opcjonalnie: delikatny scrollbar w liście */
+.pick-list--scroll::-webkit-scrollbar{ width: 10px; }
+.pick-list--scroll::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+  border: 2px solid rgba(20,22,28,.92);
+}
+
+/* Stabilne tabele (nie rozwalają layoutu) */
+.table.table--fixed { table-layout: fixed; width: 100%; }
+.td-clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Modal wysoki + scrollowalny */
+.modal__dialog--tall { width: min(860px, calc(100% - 26px)); }
+.modal__body--flex { display: flex; flex-direction: column; gap: 12px; }
+.pick-list--scroll { overflow: auto; max-height: 55vh; }
+
+/* sticky akcje w modalu */
+.modal__actions--sticky{
+  position: sticky;
+  bottom: 0;
+  background: var(--cardBg);
+  padding-top: 10px;
+}
+
+/* prosty switch */
+.switch-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+}
+
+
+:root{
+  --cardBg: rgba(20,22,28,.92);
 }

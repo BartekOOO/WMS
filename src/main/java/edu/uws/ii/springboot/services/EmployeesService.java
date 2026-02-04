@@ -9,6 +9,7 @@ import edu.uws.ii.springboot.commands.warehouses.UnassignEmployeeFromWarehouse;
 import edu.uws.ii.springboot.interfaces.IEmployeesService;
 import edu.uws.ii.springboot.models.Employee;
 import edu.uws.ii.springboot.repositories.IEmployeesRepository;
+import edu.uws.ii.springboot.specifications.EmployeeSpecifications;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class EmployeesService implements IEmployeesService {
 
     @Override
     public List<Employee> getEmployees(GetEmployeesCommand command) {
-        return List.of();
+        return employeesRepository.findAll(EmployeeSpecifications.byFilter(command));
     }
 
 }
