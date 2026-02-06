@@ -8,7 +8,7 @@
             </h2>
 
             <div class="card-actions">
-               <a class="chip" th:href="@{/Employees/AddForm}">Dodaj</a>
+                <a class="chip" th:href="@{/Employees/AddForm}">Dodaj</a>
             </div>
         </header>
 
@@ -16,12 +16,12 @@
             <div class="table-wrap">
 
                 <div class="filters" id="empFilters"
-                     th:classappend="${
-                        param.id != null || param.firstName != null || param.lastName != null ||
+                     th:with="hasAny=${
+                        param.firstName != null || param.lastName != null ||
                         param.email != null || param.phone != null || param.userName != null ||
                         param.warehouseId != null || param.role != null
-                        ? ' open' : ''
-                     }">
+                     }"
+                     th:classappend="${hasAny ? ' open' : ''}">
 
                     <button class="chip chip--filterToggle" type="button" onclick="toggleEmpFilters()">
                         🧰 Filtry
@@ -71,14 +71,17 @@
                                     <label class="form-label" for="fRole">Rola</label>
                                     <select id="fRole" class="form-input" name="role">
                                         <option value="">— wszystkie —</option>
+
                                         <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_ADMIN}"
                                                 th:selected="${param.role != null && param.role[0] == 'ROLE_ADMIN'}">
                                             Admin
                                         </option>
+
                                         <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_KIEROWNIK}"
                                                 th:selected="${param.role != null && param.role[0] == 'ROLE_KIEROWNIK'}">
                                             Kierownik
                                         </option>
+
                                         <option th:value="${T(edu.uws.ii.springboot.models.Role.Types).ROLE_PRACOWNIK}"
                                                 th:selected="${param.role != null && param.role[0] == 'ROLE_PRACOWNIK'}">
                                             Pracownik
@@ -159,10 +162,12 @@
                         <td style="min-width:0">
                             <div class="cell-main">
                                 <div class="title-row">
-                                    <div class="main-title"
-                                         th:text="${(e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '')}">
+
+                                    <a class="main-title link-soft"
+                                       th:href="@{/Employees/EditForm(id=${e.id})}"
+                                       th:text="${(e.firstName != null ? e.firstName : '') + ' ' + (e.lastName != null ? e.lastName : '')}">
                                         Jan Kowalski
-                                    </div>
+                                    </a>
 
                                     <span class="tag" th:classappend="${' ' + roleClass}" th:text="${roleLabel}">Pracownik</span>
                                 </div>
@@ -190,10 +195,7 @@
                         <td class="mono td-clip"
                             th:text="${e.phone != null && #strings.length(#strings.trim(e.phone)) > 0 ? e.phone : '—'}">—</td>
 
-                        <td class="mono"
-                            th:text="${e.warehouses != null ? #lists.size(e.warehouses) : 0}">
-                            0
-                        </td>
+                        <td class="mono" th:text="${e.warehouses != null ? #lists.size(e.warehouses) : 0}">0</td>
 
                     </tr>
 
@@ -223,8 +225,9 @@
         (function restoreEmpFilters(){
             const root = document.getElementById('empFilters');
             if(!root) return;
+
             try {
-                if(localStorage.getItem('empFiltersOpen') === '1') root.classList.add('open');
+                if (localStorage.getItem('empFiltersOpen') === '1') root.classList.add('open');
             } catch(e) {}
         })();
     </script>
