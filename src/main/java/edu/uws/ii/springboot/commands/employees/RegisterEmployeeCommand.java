@@ -15,7 +15,7 @@ public class RegisterEmployeeCommand {
     }
 
     public RegisterEmployeeCommand() {
-
+        employee = new Employee();
     }
 
 

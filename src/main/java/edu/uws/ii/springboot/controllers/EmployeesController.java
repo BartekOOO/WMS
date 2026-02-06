@@ -1,17 +1,20 @@
 package edu.uws.ii.springboot.controllers;
 
+import edu.uws.ii.springboot.commands.customers.RegisterCustomerCommand;
 import edu.uws.ii.springboot.commands.employees.GetEmployeesCommand;
+import edu.uws.ii.springboot.commands.employees.RegisterEmployeeCommand;
 import edu.uws.ii.springboot.commands.warehouses.GetWarehousesCommand;
 import edu.uws.ii.springboot.interfaces.IEmployeesService;
 import edu.uws.ii.springboot.interfaces.IWarehousesService;
+import edu.uws.ii.springboot.models.Address;
+import edu.uws.ii.springboot.models.Customer;
 import edu.uws.ii.springboot.models.Role;
 import edu.uws.ii.springboot.repositories.IEmployeesRepository;
 import edu.uws.ii.springboot.repositories.IWarehouseRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/Employees")
@@ -59,6 +62,27 @@ public class EmployeesController {
         return "app";
     }
 
+    @GetMapping("/AddForm")
+    public String AddForm(Model model){
+        model.addAttribute("content", "Employees/AddForm :: fragment");
+        model.addAttribute("command", new RegisterEmployeeCommand());
+        model.addAttribute("title", "WMS • Dodawanie pracownika");
+        return "app";
+    }
 
 
+    @PostMapping("/RegisterEmployee")
+    public String Register(Model model, RedirectAttributes ra, @ModelAttribute RegisterEmployeeCommand command) {
+        try {
+            var result = employeesService.registerEmployee(command);
+            ra.addFlashAttribute("success", "Pomyślnie udało się dodać pracownika '" + result.getFirstName()+ "'");
+            return "redirect:/Employees/EditForm?id=" + result.getId();
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("content", "Employees/AddForm :: fragment");
+            model.addAttribute("command", command);
+            model.addAttribute("title", "WMS • Dodawanie pracownika");
+            return "app";
+        }
+    }
 }

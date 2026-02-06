@@ -24,8 +24,8 @@ public class EmployeesService implements IEmployeesService {
     }
 
     @Override
-    public void registerEmployee(RegisterEmployeeCommand command) {
-
+    public Employee registerEmployee(RegisterEmployeeCommand command) {
+        return null;
     }
 
     @Override

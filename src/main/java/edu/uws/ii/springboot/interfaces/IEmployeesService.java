@@ -11,7 +11,7 @@ import edu.uws.ii.springboot.models.Employee;
 import java.util.List;
 
 public interface IEmployeesService {
-    void registerEmployee(RegisterEmployeeCommand command);
+    Employee registerEmployee(RegisterEmployeeCommand command);
     void deleteEmployee(DeleteEmployeeCommand command);
     void editEmployee(EditEmployeeCommand command);
     List<Employee> getEmployees(GetEmployeesCommand command);
